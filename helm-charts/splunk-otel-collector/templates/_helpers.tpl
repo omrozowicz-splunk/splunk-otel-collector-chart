@@ -390,7 +390,7 @@ compatibility with the old config group name: "otelK8sClusterReceiver".
 {{- define "splunk-otel-collector.o11yInfraMonEventsEnabled" -}}
 {{- $clusterReceiver := fromYaml (include "splunk-otel-collector.clusterReceiver" .) }}
 {{- if eq (toString $clusterReceiver.k8sEventsEnabled) "<nil>" }}
-{{- .Values.splunkObservability.infrastructureMonitoringEventsEnabled }}
+{{- .Values.splunkObservability.infrastructureMonitoringObjectsEnabled }}
 {{- else }}
 {{- $clusterReceiver.k8sEventsEnabled }}
 {{- end }}
