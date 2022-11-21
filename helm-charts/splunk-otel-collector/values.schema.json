@@ -669,6 +669,11 @@
           "type": "boolean",
           "deprecated": true
         },
+        "eventsEnabled": {
+          "description": "[DEPRECATED] Use objectsEnabled instead.",
+          "type": "boolean",
+          "deprecated": true
+        },
         "objectsEnabled": {
           "type": "boolean"
         },

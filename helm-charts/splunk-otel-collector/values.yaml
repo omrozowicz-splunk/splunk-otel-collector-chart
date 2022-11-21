@@ -123,7 +123,7 @@ splunkObservability:
   tracesEnabled: true
   logsEnabled: false
 
-  # Option to send Kubernetes events to Splunk Observability Infrastructure Monitoring as data events:
+  # Option to send Kubernetes objects to Splunk Observability Infrastructure Monitoring as data events:
   # https://docs.splunk.com/Observability/alerts-detectors-notifications/view-data-events.html
   # To send Kubernetes events to Splunk Observability Log Observer, set both clusterReceiver.objectsEnabled and
   # splunkObservability.logsEnabled to true.
@@ -423,7 +423,7 @@ clusterReceiver:
   annotations: {}
   podAnnotations: {}
 
-  # This flag enables Kubernetes events collection using OpenTelemetry Kubernetes Events Receiver
+  # This flag enables Kubernetes objects collection using OpenTelemetry Kubernetes Events Receiver
   # https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/receiver/k8sobjectsreceiver
   # This option requires `logsEnabled` to be set to `true` for either `splunkObservability` or `splunkPlatform`
   # depending on where you want to send the events. Otherwise, this option will not have any effect.
@@ -472,7 +472,19 @@ clusterReceiver:
   #     - name: daemonsets
   #       labelSelector: environment=production
   # ```
-  objects: {}
+  objects:
+    v1:
+      - name: pods
+        mode: pull
+        interval: 60m
+      - name: namespaces
+        mode: pull
+        interval: 60m
+      - name: nodes
+        mode: pull
+        interval: 60m
+      - name: events
+        mode: watch
 
   # k8s cluster receiver extra pod labels
   podLabels: {}
