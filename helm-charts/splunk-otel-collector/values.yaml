@@ -476,13 +476,10 @@ clusterReceiver:
     v1:
       - name: pods
         mode: pull
-        interval: 60m
       - name: namespaces
         mode: pull
-        interval: 60m
       - name: nodes
         mode: pull
-        interval: 60m
       - name: events
         mode: watch
 
