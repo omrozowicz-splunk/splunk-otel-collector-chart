@@ -390,60 +390,22 @@ compatibility with the old config group name: "otelK8sClusterReceiver".
 {{- define "splunk-otel-collector.o11yInfraMonEventsEnabled" -}}
 {{- $clusterReceiver := fromYaml (include "splunk-otel-collector.clusterReceiver" .) }}
 {{- if eq (toString $clusterReceiver.k8sEventsEnabled) "<nil>" }}
-{{- .Values.splunkObservability.infrastructureMonitoringObjectsEnabled }}
+{{- .Values.splunkObservability.infrastructureMonitoringEventsEnabled }}
 {{- else }}
 {{- $clusterReceiver.k8sEventsEnabled }}
 {{- end }}
 {{- end -}}
 
 {{/*
-"splunk-otel-collector.clusterRole.rules.base" is a dictionary of clusterRole rules that are always present by default
+Whether clusterReceiver should be deployed
 */}}
-{{- define "splunk-otel-collector.clusterRole.rules.base" -}}
-v1:
-  - events
-  - namespaces
-  - namespaces/status
-  - nodes
-  - nodes/spec
-  - nodes/stats
-  - nodes/proxy
-  - pods
-  - pods/status
-  - persistentvolumeclaims
-  - persistentvolumes
-  - replicationcontrollers
-  - replicationcontrollers/status
-  - resourcequotas
-  - services
-apps:
-  - daemonsets
-  - deployments
-  - replicasets
-  - statefulsets
-extensions:
-  - daemonsets
-  - deployments
-  - replicasets
-batch:
-  - jobs
-  - cronjobs
-autoscaling:
-  - horizontalpodautoscalers
+{{- define "splunk-otel-collector.clusterReceiverDeploy" -}}
+{{- $clusterReceiver := fromYaml (include "splunk-otel-collector.clusterReceiver" .) }}
+{{- and $clusterReceiver.enabled (or (eq (include "splunk-otel-collector.metricsEnabled" .) "true") $clusterReceiver.objectsEnabled ) -}}
 {{- end -}}
 
 {{/*
-"splunk-otel-collector.clusterRole.rules.openshift" is a dictionary of clusterRole rules in case of using openshift
-*/}}
-{{- define "splunk-otel-collector.clusterRole.rules.openshift" }}
-{{- if eq (include "splunk-otel-collector.distribution" .) "openshift" }}
-quota.openshift.io:
-  - clusterresourcequotas
-{{- end}}
-{{- end }}
-
-{{/*
-"splunk-otel-collector.clusterRole.clusterReceiver.objects" is the transformed version
+"splunk-otel-collector.clusterReceiver.rules" is the transformed version
 of the initial clusterReceiver.objects config, from:
 
   objects:
@@ -470,14 +432,15 @@ it creates:
 
 */}}
 
-{{- define "splunk-otel-collector.clusterRole.clusterReceiver.objects" }}
+{{- define "splunk-otel-collector.clusterReceiver.rules" }}
 {{- $groupedObjects := dict }}
 {{ if and .Values.clusterReceiver.objectsEnabled (eq (include "splunk-otel-collector.logsEnabled" .) "true") }}
 {{/* create a map for generating the rules */}}
 {{- range $apiGroup, $objects := .Values.clusterReceiver.objects }}
-{{- $groupedObjects = set $groupedObjects $apiGroup list }}
+{{- $groupName := ( (eq $apiGroup "v1") | ternary ( "" | quote) $apiGroup ) }}
+{{- $groupedObjects = set $groupedObjects $groupName list }}
 {{- range $objects }}
-{{- $groupedObjects = set $groupedObjects $apiGroup (append ( index $groupedObjects $apiGroup ) .name ) }}
+{{- $groupedObjects = set $groupedObjects $groupName (append ( index $groupedObjects $groupName ) .name ) }}
 {{- end }}
 {{- end }}
 {{- end }}
@@ -485,7 +448,7 @@ it creates:
 {{- end }}
 
 {{/*
-"eventsObjects" is the transformed version of initial clusterReceiver.objects config, from:
+"splunk-otel-collector.clusterReceiver.objects" is the transformed version of initial clusterReceiver.objects config, from:
 
   objects:
     v1:
@@ -518,8 +481,9 @@ it creates:
 
 
 */}}
-{{- define "splunk-otel-collector.objectsEnabled"}}
+{{- define "splunk-otel-collector.clusterReceiver.objects"}}
 {{/* create a map for generating the rules */}}
+{{ if eq (include "splunk-otel-collector.clusterReceiverDeploy" . ) "true" }}
 {{- $listObjects := list }}
 {{- range $apiGroup, $objects := .Values.clusterReceiver.objects }}
 {{- $groupName := ( (eq $apiGroup "v1") | ternary "" $apiGroup ) }}
@@ -534,69 +498,4 @@ it creates:
 {{- end }}
 {{- toYaml $listObjects -}}
 {{- end }}
-
-
-{{/*
-"splunk-otel-collector.clusterRole.rules" aggregates apiGroups data of format:
-
-  v1:
-    - events
-    - pods
-  apps:
-    - events
-
-into proper clusterRole rule template:
-
-  - apiGroups:
-    - ""      <- in case of "v1" it is transformed to ""
-    resources:
-    - "events"
-    - "pods"
-    verbs: ["get", "list", "watch"]
-  - apiGroups:
-    - "apps"
-    reources:
-    - "events"
-    verbs: ["get", "list", "watch"]
-
-it processes a few apiGroups dictionaries and merges the resources per apiGroup them together, so it no longer has
-duplicated apiGroups keys.
-*/}}
-{{- define "splunk-otel-collector.clusterRole.rules" -}}
-{{/*  define what roles have to be aggregated  */}}
-{{- $existingRoles := fromYaml (include "splunk-otel-collector.clusterRole.rules.base" . ) }}
-{{- $eventsObjectsRoles := fromYaml (include "splunk-otel-collector.clusterRole.clusterReceiver.objects" . ) }}
-{{- $openshiftRoles := fromYaml (include "splunk-otel-collector.clusterRole.rules.openshift" . ) }}
-{{- $allObjects := dict -}}
-{{/* get unique set of keys from all the role dictionaries */}}
-{{- $allKeys := keys $existingRoles $eventsObjectsRoles $openshiftRoles | uniq -}}
-{{- range $key := $allKeys -}}
-{{/* get list of lists of resources from all the dictionaries for a certain key */}}
-{{- $pluckedList := ( pluck $key $eventsObjectsRoles $existingRoles $openshiftRoles ) -}}
-{{- $aggregatedList := list -}}
-{{/* join lists to have one list per key */}}
-{{- range $listObject := $pluckedList -}}
-{{- $aggregatedList = concat $aggregatedList $listObject -}}
-{{- end -}}
-{{/* insert list of unique elements into the result structure */}}
-{{- $allObjects = set $allObjects $key ( $aggregatedList | uniq ) -}}
-{{- end -}}
-{{/*
-generate clusterRole.rules template
- */}}
-{{- range $apiGroup, $object := $allObjects -}}
-{{- $groupName := ((eq $apiGroup "v1") | ternary ("" | quote) $apiGroup ) -}}
-{{- if $object }}
-- apiGroups:
-  - {{ $groupName }}
-  resources:
-  {{- range $object }}
-  - {{ . }}
-  {{- end }}
-  verbs:
-  - get
-  - list
-  - watch
-{{- end -}}
-{{- end -}}
-{{- end -}}
+{{- end }}

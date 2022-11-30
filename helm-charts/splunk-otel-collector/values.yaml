@@ -127,7 +127,7 @@ splunkObservability:
   # https://docs.splunk.com/Observability/alerts-detectors-notifications/view-data-events.html
   # To send Kubernetes events to Splunk Observability Log Observer, set both clusterReceiver.objectsEnabled and
   # splunkObservability.logsEnabled to true.
-  infrastructureMonitoringObjectsEnabled: false
+  infrastructureMonitoringEventsEnabled: false
 
   # This option just enables the shared pipeline for logs and profiling data.
   # There is no active collection of profiling data.
