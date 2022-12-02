@@ -1,10 +1,10 @@
 # Upgrade guidelines
 
-## 0.64.0 to 0.65.0
+## 0.64.0 to 0.66.0
 Before this change, [k8s events receiver](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/receiver/k8seventsreceiver) was used to collect Kubernetes Events.
 Now we utilize [k8s object receiver](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/receiver/k8sobjectsreceiver) that can pull or watch any object from Kubernetes API server.
 Therefore, `clusterReceiver.eventsEnabled` is now deprecated, and to maintain the same behavior you should set
-`objectsReceiver.eventsEnabled` to `true` and configure `objectsReceiver.k8sObjects` to watch event objects:
+`objectsReceiver.objectsEnabled` to `true` and configure `objectsReceiver.k8sObjects` to watch event objects:
 ```yaml
   eventsEnabled: true
   k8sObjects:
