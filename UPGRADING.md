@@ -4,14 +4,14 @@
 Before this change, [k8s events receiver](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/receiver/k8seventsreceiver) was used to collect Kubernetes Events.
 Now we utilize [k8s object receiver](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/receiver/k8sobjectsreceiver) that can pull or watch any object from Kubernetes API server.
 Therefore, `clusterReceiver.eventsEnabled` is now deprecated, and to maintain the same behavior you should set
-`objectsReceiver.objectsEnabled` to `true` and configure `objectsReceiver.k8sObjects` to watch event objects:
+`clusterReceiver.objectsEnabled` to `true` and configure `clusterReceiver.k8sObjects` to watch event objects:
 ```yaml
   objectsEnabled: true
   k8sObjects:
     - mode: watch
       name: events
 ```
-You can monitor more kubernetes objects configuring `objectsReceiver.k8sObjects` according to the instruction from
+You can monitor more kubernetes objects configuring `clusterReceiver.k8sObjects` according to the instruction from
 [k8s object receiver](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/receiver/k8sobjectsreceiver).
 Remember to define `rbac.customRules` when needed.
 

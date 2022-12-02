@@ -98,3 +98,9 @@ clusterReceiver:
   # The receiver currently is in alpha state which means that events format might change over time.
   # Once the receiver is stabilized, it'll be enabled by default in this helm chart
   objectsEnabled: true
+  k8sObjects:
+    - name: pods
+    - name: namespaces
+    - name: nodes
+    - name: events
+      mode: watch

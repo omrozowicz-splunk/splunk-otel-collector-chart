@@ -431,7 +431,46 @@ clusterReceiver:
   # Once the receiver is stabilized, it'll be enabled by default in this helm chart
   objectsEnabled: false
 
-  # k8s objects to collect (pull/watch) from the Kubernetes API server. The configuration format is described here:
+  # k8s objects to collect (pull/watch) from the Kubernetes API server.
+  #
+  # == Schema ==
+  # ```
+  # k8sObjects:
+  #   - <objectDefinition>
+  # ```
+  # Each `objectDefinition` has the following fields:
+  # * mode:
+  #     define in which way it collects this type of object, either "pull" or "watch".
+  #     - "poll" mode will read all objects of this type use the list API at an interval. Default mode.
+  #     - "watch" mode will setup a long connection using the watch API to just get updates.
+  # * name: [REQUIRED]
+  #     name of the object, e.g. `pods`, `namespaces`.
+  # * namespace:
+  #     only collects objects from the specified namespace, by default it's all namespaces
+  # * labelSelector:
+  #     select objects by label(s)
+  # * fieldSelector:
+  #     select objects by field(s)
+  # * interval:
+  #     the interval at which object is pulled, default 60 seconds.
+  #     Only useful for "pull" mode.
+  #
+  #
+  # == Example ==
+  # ```
+  #  k8sObjects:
+  #    - name: pods
+  #      mode: pull
+  #      label_selector: environment in (production),tier in (frontend)
+  #      field_selector: status.phase=Running
+  #      interval: 15m
+  #    - name: events
+  #      mode: watch
+  #      group: events.k8s.io
+  #      namespaces: [default]
+  # ```
+  #
+  # The configuration format in details is described here:
   # https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/receiver/k8sobjectsreceiver
   k8sObjects: []
 
