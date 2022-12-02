@@ -6,7 +6,7 @@ Now we utilize [k8s object receiver](https://github.com/open-telemetry/opentelem
 Therefore, `clusterReceiver.eventsEnabled` is now deprecated, and to maintain the same behavior you should set
 `objectsReceiver.objectsEnabled` to `true` and configure `objectsReceiver.k8sObjects` to watch event objects:
 ```yaml
-  eventsEnabled: true
+  objectsEnabled: true
   k8sObjects:
     - mode: watch
       name: events
