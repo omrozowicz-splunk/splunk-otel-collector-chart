@@ -10,23 +10,6 @@ metadata:
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
 rules:
-{{- $groupedObjects := fromYaml (include "splunk-otel-collector.clusterReceiver.rules" . ) }}
-{{- if $groupedObjects }}
-{{- range $apiGroup, $resources := $groupedObjects }}
-{{- if $resources }}
-- apiGroups:
-  - {{ $apiGroup }}
-  resources:
-  {{- range $resources }}
-  - {{ . }}
-  {{- end }}
-  verbs:
-  - get
-  - list
-  - watch
-{{- end }}
-{{- end }}
-{{- end }}
 {{- if eq (include "splunk-otel-collector.distribution" .) "openshift" }}
 - apiGroups:
   - quota.openshift.io
