@@ -91,15 +91,10 @@ processors:
   {{- end }}
 
   {{- if and $clusterReceiver.objectsEnabled (eq (include "splunk-otel-collector.logsEnabled" .) "true") }}
-  # Drop high cardinality k8s event attributes
-  attributes/drop_event_attrs:
-    actions:
-      - key: k8s.event.start_time
-        action: delete
-      - key: k8s.event.name
-        action: delete
-      - key: k8s.event.uid
-        action: delete
+  transform/add_sourcetype:
+    logs:
+      statements:
+        - set(resource.attributes["com.splunk.sourcetype"], Concat(["kube:object:", attributes["event.name"]], ""))
   {{- end }}
 
   # Resource attributes specific to the collector itself.
@@ -186,6 +181,7 @@ service:
   extensions: [health_check, memory_ballast]
   {{- end }}
   pipelines:
+    {{- if or (eq (include "splunk-otel-collector.o11yMetricsEnabled" $) "true") (eq (include "splunk-otel-collector.platformMetricsEnabled" $) "true") }}
     # k8s metrics pipeline
     metrics:
       receivers: [k8s_cluster]
@@ -211,7 +207,6 @@ service:
         {{- end }}
     {{- end }}
 
-    {{- if or (eq (include "splunk-otel-collector.splunkO11yEnabled" $) "true") (eq (include "splunk-otel-collector.platformMetricsEnabled" $) "true") }}
     # Pipeline for metrics collected about the collector pod itself.
     metrics/collector:
       receivers: [prometheus/k8s_cluster_receiver]
@@ -237,9 +232,9 @@ service:
       processors:
         - memory_limiter
         - batch
-        - attributes/drop_event_attrs
         - resourcedetection
         - resource
+        - transform/add_sourcetype
         {{- if .Values.environment }}
         - resource/add_environment
         {{- end }}

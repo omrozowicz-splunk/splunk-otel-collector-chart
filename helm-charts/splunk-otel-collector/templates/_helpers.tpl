@@ -403,4 +403,3 @@ Whether clusterReceiver should be deployed
 {{- $clusterReceiver := fromYaml (include "splunk-otel-collector.clusterReceiver" .) }}
 {{- and $clusterReceiver.enabled (or (eq (include "splunk-otel-collector.metricsEnabled" .) "true") $clusterReceiver.objectsEnabled ) -}}
 {{- end -}}
-
