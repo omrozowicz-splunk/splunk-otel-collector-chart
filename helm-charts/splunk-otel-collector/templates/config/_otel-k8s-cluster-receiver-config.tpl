@@ -91,6 +91,8 @@ processors:
   {{- end }}
 
   {{- if and $clusterReceiver.objectsEnabled (eq (include "splunk-otel-collector.logsEnabled" .) "true") }}
+  # TODO: After updating to 0.66.0, change syntax according to
+  # https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/processor/transformprocessor
   transform/add_sourcetype:
     logs:
       statements:
