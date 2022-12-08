@@ -397,9 +397,18 @@ compatibility with the old config group name: "otelK8sClusterReceiver".
 {{- end -}}
 
 {{/*
+Whether object collection should be enabled
+*/}}
+{{- define "splunk-otel-collector.objectsEnabled" -}}
+{{- $clusterReceiver := fromYaml (include "splunk-otel-collector.clusterReceiver" .) }}
+{{- or $clusterReceiver.eventsEnabled $clusterReceiver.objectsEnabled -}}
+{{- end -}}
+
+{{/*
 Whether clusterReceiver should be enabled
 */}}
 {{- define "splunk-otel-collector.clusterReceiverEnabled" -}}
 {{- $clusterReceiver := fromYaml (include "splunk-otel-collector.clusterReceiver" .) }}
-{{- and $clusterReceiver.enabled (or (eq (include "splunk-otel-collector.metricsEnabled" .) "true") $clusterReceiver.objectsEnabled ) -}}
+{{- and $clusterReceiver.enabled (or (eq (include "splunk-otel-collector.metricsEnabled" .) "true") ( include "splunk-otel-collector.objectsEnabled" . )) -}}
 {{- end -}}
+

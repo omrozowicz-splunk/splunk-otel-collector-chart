@@ -11,5 +11,4 @@ python -m pytest \
 	--splunkd-url https://$CI_SPLUNK_HOST:8089 \
 	--splunk-user admin \
 	--splunk-password $CI_SPLUNK_PASSWORD \
-	--xfail-file k8s_objects_tests/test_config_objects.py::test_k8s_objects_sourcetype[sourcetype-kube:object:event-1]  \
 	-p no:warnings -s
