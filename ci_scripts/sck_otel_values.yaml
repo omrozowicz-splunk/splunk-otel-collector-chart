@@ -29,6 +29,13 @@ splunkPlatform:
   logsEnabled: true
   metricsEnabled: true
 
+image:
+  otelcol:
+    # The registry and name of the opentelemetry collector image to pull
+    repository: quay.io/signalfx/splunk-otel-collector
+    # The tag of the Splunk OTel Collector image, default value is the chart appVersion
+    tag: "0.66.0"
+
 logsEngine: otel
 
 clusterName: "functional-test"
