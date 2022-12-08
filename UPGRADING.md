@@ -3,18 +3,17 @@
 ## 0.64.0 to 0.66.0
 Before this change, [k8s events receiver](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/receiver/k8seventsreceiver) was used to collect Kubernetes Events.
 Now we utilize [k8s objects receiver](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/receiver/k8sobjectsreceiver) that can pull or watch any object from Kubernetes API server.
-Therefore, `clusterReceiver.eventsEnabled` is now obsolete, and to maintain the same behavior you should set
-`clusterReceiver.objectsEnabled` to `true` and configure `clusterReceiver.k8sObjects` to watch event objects:
+Therefore, `clusterReceiver.eventsEnabled` is now deprecated - when on, it applies the following receiver config:
+
 ```yaml
-  objectsEnabled: true
-  k8sObjects:
+k8sobjects:
+  auth_type: serviceAccount
+  objects:
     - mode: watch
       name: events
 ```
-You can monitor more kubernetes objects configuring `clusterReceiver.k8sObjects` according to the instruction from
-[k8s objects receiver](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/receiver/k8sobjectsreceiver).
 
-Remember to define `rbac.customRules` when needed.
+Which is an equivalent of gathering events by k8s events receiver.
 
 There is a difference in the event formatting between `k8s_events` receiver and `k8sobjects` receiver results.
 `k8s_events` receiver stores event message as a log body, with the following fields added as a resource/attribute:
@@ -32,6 +31,11 @@ There is a difference in the event formatting between `k8s_events` receiver and 
 * k8s.namespace.name
 
 In case of `k8sobjects`, the whole payload is stored in the log body and `object.message` refers to the event message.
+
+You can monitor more kubernetes objects configuring `clusterReceiver.k8sObjects` according to the instruction from
+[k8s objects receiver](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/receiver/k8sobjectsreceiver).
+
+Remember to define `rbac.customRules` when needed.
 
 
 ## 0.58.0 to 0.59.0
