@@ -1,0 +1,3 @@
+pytest-expect file v1
+(3, 10, 0, 'final', 0)
+u'test/k8s_logging_tests/test_config_logging.py': FAIL
