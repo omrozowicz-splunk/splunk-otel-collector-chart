@@ -35,7 +35,7 @@ receivers:
     {{- if eq (include "splunk-otel-collector.distribution" .) "openshift" }}
     distribution: openshift
     {{- end }}
-  {{- if and ( include "splunk-otel-collector.objectsEnabled" . ) (eq (include "splunk-otel-collector.logsEnabled" .) "true") }}
+  {{- if and ( eq ( include "splunk-otel-collector.objectsEnabled" . ) "true") (eq (include "splunk-otel-collector.logsEnabled" .) "true") }}
   k8sobjects:
     auth_type: serviceAccount
     {{- if $clusterReceiver.objectsEnabled }}
@@ -136,7 +136,7 @@ processors:
         value: {{ .value }}
       {{- end }}
 
-  {{- if and ( include "splunk-otel-collector.objectsEnabled" . ) .Values.environment }}
+  {{- if and ( eq ( include "splunk-otel-collector.objectsEnabled" . ) "true") .Values.environment }}
   resource/add_environment:
     attributes:
       - action: insert
@@ -162,7 +162,7 @@ exporters:
     timeout: 10s
   {{- end }}
 
-  {{- if and (eq (include "splunk-otel-collector.o11yLogsEnabled" .) "true") ( include "splunk-otel-collector.objectsEnabled" . ) }}
+  {{- if and (eq (include "splunk-otel-collector.o11yLogsEnabled" .) "true") ( eq ( include "splunk-otel-collector.objectsEnabled" . ) "true") }}
   splunk_hec/o11y:
     endpoint: {{ include "splunk-otel-collector.o11yIngestUrl" . }}/v1/log
     token: "${SPLUNK_OBSERVABILITY_ACCESS_TOKEN}"
@@ -174,7 +174,7 @@ exporters:
   {{- include "splunk-otel-collector.splunkPlatformMetricsExporter" . | nindent 2 }}
   {{- end }}
 
-  {{- if and (eq (include "splunk-otel-collector.platformLogsEnabled" .) "true") ( include "splunk-otel-collector.objectsEnabled" . )}}
+  {{- if and (eq (include "splunk-otel-collector.platformLogsEnabled" .) "true") ( eq ( include "splunk-otel-collector.objectsEnabled" . ) "true")}}
   {{- include "splunk-otel-collector.splunkPlatformLogsExporter" . | nindent 2 }}
     sourcetype: kube:events
   {{- end }}
@@ -233,7 +233,7 @@ service:
         {{- end }}
     {{- end }}
 
-    {{- if and ( include "splunk-otel-collector.objectsEnabled" . ) (eq (include "splunk-otel-collector.logsEnabled" .) "true") }}
+    {{- if and ( eq ( include "splunk-otel-collector.objectsEnabled" . ) "true") (eq (include "splunk-otel-collector.logsEnabled" .) "true") }}
     logs:
       receivers:
         - k8sobjects

@@ -409,5 +409,5 @@ Whether clusterReceiver should be enabled
 */}}
 {{- define "splunk-otel-collector.clusterReceiverEnabled" -}}
 {{- $clusterReceiver := fromYaml (include "splunk-otel-collector.clusterReceiver" .) }}
-{{- and $clusterReceiver.enabled (or (eq (include "splunk-otel-collector.metricsEnabled" .) "true") ( include "splunk-otel-collector.objectsEnabled" . )) -}}
+{{- and $clusterReceiver.enabled (or (eq (include "splunk-otel-collector.metricsEnabled" .) "true") (eq (include "splunk-otel-collector.objectsEnabled" .) "true")) -}}
 {{- end -}}
