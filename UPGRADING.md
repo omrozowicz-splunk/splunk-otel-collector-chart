@@ -15,6 +15,15 @@ k8sobjects:
 
 Which is an equivalent of gathering events by k8s events receiver.
 
+To achieve the same behavior using `clusterReceiver.objectsEnabled` parameter, set:
+
+```yaml
+objectsEnabled: true
+k8sObjects:
+  - mode: watch
+    name: events
+```
+
 There is a difference in the event formatting between `k8s_events` receiver and `k8sobjects` receiver results.
 `k8s_events` receiver stores event message as a log body, with the following fields added as a resource/attribute:
 * k8s.object.kind
@@ -31,6 +40,7 @@ There is a difference in the event formatting between `k8s_events` receiver and 
 * k8s.namespace.name
 
 In case of `k8sobjects`, the whole payload is stored in the log body and `object.message` refers to the event message.
+
 
 You can monitor more kubernetes objects configuring `clusterReceiver.k8sObjects` according to the instruction from
 [k8s objects receiver](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/receiver/k8sobjectsreceiver).
