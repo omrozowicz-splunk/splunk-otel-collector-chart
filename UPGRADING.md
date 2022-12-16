@@ -30,7 +30,7 @@ The `k8s_events` receiver stores event messages their log body, with the followi
 * `k8s.event.uid`
 * `k8s.namespace.name`
 
-In case of `k8sobjects`, the whole payload is stored in the log body and `object.message` refers to the event message.
+Now with the `k8sobjects` receiver, the whole payload is stored in the log body and `object.message` refers to the event message.
 
 
 You can monitor more Kubernetes objects configuring by `clusterReceiver.k8sObjects` according to the instructions from the
