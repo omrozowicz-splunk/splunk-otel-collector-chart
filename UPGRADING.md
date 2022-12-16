@@ -1,21 +1,11 @@
 # Upgrade guidelines
 
-## 0.64.0 to 0.66.0
-Before this change, [k8s events receiver](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/receiver/k8seventsreceiver) was used to collect Kubernetes Events.
-Now we utilize [k8s objects receiver](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/receiver/k8sobjectsreceiver) that can pull or watch any object from Kubernetes API server.
-Therefore, `clusterReceiver.eventsEnabled` is now deprecated - when on, it applies the following receiver config:
+## $CURRENT_VERSION to $NEXT_VERSION
 
-```yaml
-k8sobjects:
-  auth_type: serviceAccount
-  objects:
-    - mode: watch
-      name: events
-```
+There is a new receiver: [Kubernetes Objects Receiver](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/receiver/k8sobjectsreceiver) that can pull or watch any object from Kubernetes API server.
+It will replace the [Kubernetes Events Receiver](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/receiver/k8seventsreceiver) in the future.
 
-Which is an equivalent of gathering events by k8s events receiver.
-
-To achieve the same behavior using `clusterReceiver.objectsEnabled` parameter, set:
+To migrate from Kubernetes Events Receiver to Kubernetes Object Receiver enable `clusterReceiver.objectsEnabled` parameter, and configure:
 
 ```yaml
 objectsEnabled: true
@@ -24,8 +14,9 @@ k8sObjects:
     name: events
 ```
 
-There is a difference in the event formatting between `k8s_events` receiver and `k8sobjects` receiver results.
-`k8s_events` receiver stores event message as a log body, with the following fields added as a resource/attribute:
+There are differences in the log record formatting between the previous `k8s_events` receiver and the now adopted `k8sobjects` receiver results.
+The `k8s_events` receiver stores event messages their log body, with the following fields added as attributes:
+
 * k8s.object.kind
 * k8s.object.name
 * k8s.object.uid
@@ -42,8 +33,8 @@ There is a difference in the event formatting between `k8s_events` receiver and 
 In case of `k8sobjects`, the whole payload is stored in the log body and `object.message` refers to the event message.
 
 
-You can monitor more kubernetes objects configuring `clusterReceiver.k8sObjects` according to the instruction from
-[k8s objects receiver](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/receiver/k8sobjectsreceiver).
+You can monitor more Kubernetes objects configuring by `clusterReceiver.k8sObjects` according to the instructions from the
+[Kubernetes Objects Receiver](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/receiver/k8sobjectsreceiver) documentation.
 
 Remember to define `rbac.customRules` when needed.
 

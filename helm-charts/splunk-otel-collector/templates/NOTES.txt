@@ -70,8 +70,6 @@ Splunk Network Explorer is installed and configured.
           Upgrade guidelines: https://github.com/signalfx/splunk-otel-collector-chart/blob/main/UPGRADING.md#0532-to-0540
 {{ end }}
 {{- if not (eq (toString $clusterReceiver.eventsEnabled) "<nil>") }}
-[WARNING] "clusterReceiver.eventsEnabled" parameter is deprecated. Now events are collected by k8s object receiver.
-          When on, it will automatically collect events using k8sobjects receiver - but the sourcetype and formatting are different.
-          Please use clusterReceiver.objectsEnabled and clusterReceiver.k8sObjects instead.
+[WARNING] "clusterReceiver.eventsEnabled" parameter is deprecated. Soon it will be replaced with k8s object receiver.
           Upgrade guidelines: https://github.com/signalfx/splunk-otel-collector-chart/blob/main/UPGRADING.md#0640-to-0660
 {{ end }}
