@@ -38,7 +38,7 @@ receivers:
   {{- if and $clusterReceiver.objectsEnabled "true" (eq (include "splunk-otel-collector.logsEnabled" .) "true") }}
   k8sobjects:
     auth_type: serviceAccount
-    objects: {{ .Values.clusterReceiver.k8sObjects | toJson }}
+    objects: {{ .Values.clusterReceiver.k8sObjects | toYaml | nindent 6 }}
   {{- end }}
   {{- if and $clusterReceiver.eventsEnabled (eq (include "splunk-otel-collector.logsEnabled" .) "true") }}
   k8s_events:
