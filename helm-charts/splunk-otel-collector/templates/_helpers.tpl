@@ -401,7 +401,7 @@ Whether object collection should be enabled
 */}}
 {{- define "splunk-otel-collector.objectsOrEventsEnabled" -}}
 {{- $clusterReceiver := fromYaml (include "splunk-otel-collector.clusterReceiver" .) }}
-{{- or $clusterReceiver.eventsEnabled $clusterReceiver.objectsEnabled -}}
+{{- or $clusterReceiver.eventsEnabled $clusterReceiver.k8sObjects -}}
 {{- end -}}
 
 {{/*

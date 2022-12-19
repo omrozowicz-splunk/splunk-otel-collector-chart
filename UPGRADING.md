@@ -8,7 +8,6 @@ It will replace the [Kubernetes Events Receiver](https://github.com/open-telemet
 To migrate from Kubernetes Events Receiver to Kubernetes Object Receiver, configure `clusterReceiver` values.yaml section with:
 
 ```yaml
-objectsEnabled: true
 k8sObjects:
   - mode: watch
     name: events
