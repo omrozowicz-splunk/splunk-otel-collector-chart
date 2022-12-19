@@ -91,7 +91,7 @@ logsCollection:
 
 clusterReceiver:
   enabled: true
-  # This flag enables Kubernetes objects collection using OpenTelemetry Kubernetes Object Receiver
+  # Kubernetes objects collection using OpenTelemetry Kubernetes Object Receiver
   # https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/receiver/k8sobjectsreceiver
   # This option requires `logsEnabled` to be set to `true` for either `splunkObservability` or `splunkPlatform`
   # depending on where you want to send the events. Otherwise, this option will not have any effect.
