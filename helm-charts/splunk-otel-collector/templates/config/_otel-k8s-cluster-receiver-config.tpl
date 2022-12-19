@@ -35,7 +35,7 @@ receivers:
     {{- if eq (include "splunk-otel-collector.distribution" .) "openshift" }}
     distribution: openshift
     {{- end }}
-  {{- if and $clusterReceiver.k8sObjects "true" (eq (include "splunk-otel-collector.logsEnabled" .) "true") }}
+  {{- if and (eq (include "splunk-otel-collector.objectsEnabled" .) "true") (eq (include "splunk-otel-collector.logsEnabled" .) "true") }}
   k8sobjects:
     auth_type: serviceAccount
     objects: {{ .Values.clusterReceiver.k8sObjects | toYaml | nindent 6 }}
@@ -106,7 +106,7 @@ processors:
         action: delete
   {{- end }}
 
-  {{- if and $clusterReceiver.k8sObjects (eq (include "splunk-otel-collector.logsEnabled" .) "true") }}
+  {{- if and (eq (include "splunk-otel-collector.objectsEnabled" .) "true") (eq (include "splunk-otel-collector.logsEnabled" .) "true") }}
   # TODO: After updating to 0.66.0, change syntax according to
   # https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/processor/transformprocessor
   transform/add_sourcetype:
@@ -268,7 +268,7 @@ service:
         {{- end }}
     {{- end }}
 
-    {{- if and $clusterReceiver.k8sObjects (eq (include "splunk-otel-collector.logsEnabled" .) "true") }}
+    {{- if and (eq (include "splunk-otel-collector.objectsEnabled" .) "true") (eq (include "splunk-otel-collector.logsEnabled" .) "true") }}
     logs/objects:
       receivers:
         - k8sobjects
