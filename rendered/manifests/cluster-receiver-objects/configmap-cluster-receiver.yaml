@@ -72,7 +72,9 @@ data:
         timeout: 10s
       transform/add_sourcetype:
         log_statements:
-        - set(resource.attributes["com.splunk.sourcetype"], Concat(["kube:object:", attributes["event.name"]], ""))
+        - context: resource
+          statements:
+          - set(resource.attributes["com.splunk.sourcetype"], Concat(["kube:object:", attributes["event.name"]], ""))
     receivers:
       k8s_cluster:
         auth_type: serviceAccount
