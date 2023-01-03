@@ -109,7 +109,7 @@ processors:
   {{- if and (eq (include "splunk-otel-collector.objectsEnabled" .) "true") (eq (include "splunk-otel-collector.logsEnabled" .) "true") }}
   transform/add_sourcetype:
     log_statements:
-      - context: resource
+      - context: log
         statements:
           - set(resource.attributes["com.splunk.sourcetype"], Concat(["kube:object:", attributes["event.name"]], ""))
   {{- end }}
