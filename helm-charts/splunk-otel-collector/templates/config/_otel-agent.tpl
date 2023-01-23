@@ -152,6 +152,7 @@ receivers:
         config:
           extraDimensions:
             metric_source: kubernetes-apiserver
+          port: 443
           skipVerify: true
           type: kubernetes-apiserver
           useHTTPS: true
