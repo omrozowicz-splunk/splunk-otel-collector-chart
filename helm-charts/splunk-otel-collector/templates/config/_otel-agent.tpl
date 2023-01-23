@@ -147,7 +147,7 @@ receivers:
         {{- if eq .Values.distribution "openshift" }}
         rule: type == "port" && port == 6443 && pod.labels["app"] == "openshift-kube-apiserver" && pod.labels["apiserver"] == "true"
         {{- else }}
-        rule: type == "port" && port == 443 && pod.labels["component"] == "kube-apiserver"
+        rule: type == "port" && port == 443
         {{- end }}
         config:
           extraDimensions:
