@@ -154,7 +154,7 @@ spec:
           {{- if .Values.logsCollection.journald.enabled }}
           if [ -d "{{ .Values.logsCollection.journald.directory }}" ];
           then
-              setfacl -n -Rm d:m::rx,m::rx,d:g:{{ $agent.securityContext.runAsGroup | default 999 }}:rx,g:{{ $agent.securityContext.runAsGroup | default 999 }}:rx {{ .Values.logsCollection.journald.directory }};
+              setfacl -n -Rm d:m::rx,m::rx,d:g:{{ $agent.securityContext.runAsGroup | default 20000 }}:rx,g:{{ $agent.securityContext.runAsGroup | default 20000 }}:rx {{ .Values.logsCollection.journald.directory }};
           fi;
           {{- end }}
           {{- if (eq (include "splunk-otel-collector.persistentQueueEnabled" .) "true") }}
