@@ -11,6 +11,11 @@ extensions:
     directory: {{ .Values.logsCollection.checkpointPath }}
   {{- end }}
 
+  {{- if (eq (include "splunk-otel-collector.persistentQueueEnabled" .) "true") }}
+  file_storage/persistent_queue:
+    directory: {{ .Values.splunkPlatform.sendingQueue.persistentQueueEnabled.storagePath }}/agent
+  {{- end }}
+
   memory_ballast:
     size_mib: ${SPLUNK_BALLAST_SIZE_MIB}
 
@@ -393,6 +398,7 @@ receivers:
     directory: {{ $.Values.logsCollection.journald.directory }}
     units: [{{ $unit.name }}]
     priority: {{ $unit.priority }}
+    storage: file_storage
     operators:
     - type: add
       field: resource["com.splunk.source"]
@@ -620,6 +626,9 @@ service:
   extensions:
     {{- if and (eq (include "splunk-otel-collector.logsEnabled" .) "true") (eq .Values.logsEngine "otel") }}
     - file_storage
+    {{- end }}
+    {{- if (eq (include "splunk-otel-collector.persistentQueueEnabled" .) "true") }}
+    - file_storage/persistent_queue
     {{- end }}
     - health_check
     - k8s_observer
