@@ -582,8 +582,6 @@ processors:
       - context: metric
         statements:
           - set(resource.attributes["com.splunk.index"], resource.attributes["com.splunk.metricsIndex"])
-          # If I do that it works fine (name of the index as a string):
-          # - set(resource.attributes["com.splunk.index"], "kube_metrics2")
 
   {{- if or .Values.autodetect.prometheus .Values.autodetect.istio }}
   # This processor is used to remove excessive istio attributes to avoid running into the dimensions limit.
@@ -805,7 +803,6 @@ service:
       processors:
         - memory_limiter
         - k8sattributes/metrics
-        - transform/metrics_index_update
         - batch
         {{- if or .Values.autodetect.prometheus .Values.autodetect.istio }}
         - attributes/istio
@@ -822,6 +819,7 @@ service:
         {{- if .Values.isWindows }}
         - metricstransform
         {{- end }}
+        - transform/metrics_index_update
       exporters:
         {{- if $gatewayEnabled }}
         - otlp
@@ -843,11 +841,11 @@ service:
       processors:
         - memory_limiter
         - k8sattributes/metrics
-        - transform/metrics_index_update
         - batch
         - resource/add_agent_k8s
         - resourcedetection
         - resource
+        - transform/metrics_index_update
       exporters:
         {{- if (eq (include "splunk-otel-collector.splunkO11yEnabled" .) "true") }}
         # Use signalfx instead of otlp even if collector is enabled
@@ -861,5 +859,6 @@ service:
         - splunk_hec/platform_metrics
         {{- end }}
         {{- end }}
+        - logging
     {{- end }}
 {{- end }}

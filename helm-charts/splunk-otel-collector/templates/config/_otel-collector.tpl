@@ -174,7 +174,6 @@ service:
       processors:
         - memory_limiter
         - k8sattributes/metrics
-        - transform/metrics_index_update
         - batch
         - resource/add_cluster_name
         {{- if .Values.extraAttributes.custom }}
@@ -187,6 +186,7 @@ service:
         {{- if (and .Values.splunkPlatform.metricsEnabled .Values.environment) }}
         - resource/add_environment
         {{- end }}
+        - transform/metrics_index_update
       exporters:
         {{- if (eq (include "splunk-otel-collector.o11yMetricsEnabled" .) "true") }}
         - signalfx
@@ -233,11 +233,11 @@ service:
       processors:
         - memory_limiter
         - k8sattributes/metrics
-        - transform/metrics_index_update
         - batch
         - resource/add_collector_k8s
         - resourcedetection
         - resource/add_cluster_name
+        - transform/metrics_index_update
       exporters:
         {{- if (eq (include "splunk-otel-collector.splunkO11yEnabled" .) "true") }}
         - signalfx
