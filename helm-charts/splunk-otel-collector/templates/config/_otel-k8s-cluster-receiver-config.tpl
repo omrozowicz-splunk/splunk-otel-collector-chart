@@ -213,7 +213,7 @@ service:
     # k8s metrics pipeline
     metrics:
       receivers: [k8s_cluster]
-      processors: [memory_limiter, batch, resource, resource/k8s_cluster]
+      processors: [memory_limiter, k8sattributes/metrics, batch, resource]
       exporters:
         {{- if (eq (include "splunk-otel-collector.o11yMetricsEnabled" .) "true") }}
         - signalfx
@@ -225,7 +225,7 @@ service:
     {{- if eq (include "splunk-otel-collector.distribution" .) "eks/fargate" }}
     metrics/eks:
       receivers: [receiver_creator]
-      processors: [memory_limiter, batch, resource]
+      processors: [memory_limiter, k8sattributes/metrics, batch, resource]
       exporters:
         {{- if (eq (include "splunk-otel-collector.o11yMetricsEnabled" .) "true") }}
         - signalfx
@@ -260,7 +260,6 @@ service:
         - k8s_events
       processors:
         - memory_limiter
-        - k8sattributes/metrics
         - batch
         - attributes/drop_event_attrs
         - resourcedetection
@@ -283,7 +282,6 @@ service:
         - k8sobjects
       processors:
         - memory_limiter
-        - k8sattributes/metrics
         - batch
         - resourcedetection
         - resource
@@ -306,7 +304,6 @@ service:
         - smartagent/kubernetes-events
       processors:
         - memory_limiter
-        - k8sattributes/metrics
         - batch
         - resource
         - resource/add_event_k8s

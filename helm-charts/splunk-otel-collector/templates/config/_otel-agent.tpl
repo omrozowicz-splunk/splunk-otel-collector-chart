@@ -577,13 +577,6 @@ processors:
         new_name: container.memory.usage
   {{- end }}
 
-  #transform/metrics_index_update:
-   # metric_statements:
-    #  - context: metric
-     #   statements:
-      #    #- set(resource.attributes["com.splunk.index"], resource.attributes["com.splunk.metricsIndex"])
-       #   - set(resource.attributes["k8s.pod.about"], "foobar2")
-
   {{- if or .Values.autodetect.prometheus .Values.autodetect.istio }}
   # This processor is used to remove excessive istio attributes to avoid running into the dimensions limit.
   # This configuration assumes single cluster istio deployment. If you run istio in multi-cluster scenarios or make use of the canonical service and revision labels,
@@ -693,7 +686,6 @@ service:
         - otlp
       processors:
         - memory_limiter
-        - k8sattributes/metrics
         {{- if and (eq (include "splunk-otel-collector.logsEnabled" .) "true") (eq .Values.logsEngine "fluentd") }}
         - groupbyattrs/logs
         {{- end }}

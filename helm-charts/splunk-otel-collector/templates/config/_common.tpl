@@ -146,7 +146,16 @@ k8sattributes/metrics:
   pod_association:
     - sources:
       - from: resource_attribute
-        name: k8s.pod.uid
+        name: k8s.namespace.name
+    - sources:
+      - from: resource_attribute
+        name: k8s.node.name
+    - sources:
+      - from: resource_attribute
+        name: k8s.pod.name
+    - sources:
+      - from: resource_attribute
+        name: k8s.container.name
     - sources:
       - from: resource_attribute
         name: k8s.pod.ip
@@ -165,7 +174,7 @@ k8sattributes/metrics:
       - k8s.deployment.name
       - k8s.namespace.name
       - k8s.node.name
-      - k8s.pod.start_time
+      - k8s.container.name
     annotations:
       - key: splunk.com/metricsIndex
         tag_name: com.splunk.index
