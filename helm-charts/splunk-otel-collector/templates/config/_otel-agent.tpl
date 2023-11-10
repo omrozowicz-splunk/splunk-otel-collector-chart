@@ -824,7 +824,6 @@ service:
         - splunk_hec/platform_metrics
         {{- end }}
         {{- end }}
-        - logging
     {{- end }}
 
     {{- if or (eq (include "splunk-otel-collector.splunkO11yEnabled" .) "true") (eq (include "splunk-otel-collector.platformMetricsEnabled" .) "true") }}
@@ -851,6 +850,5 @@ service:
         - splunk_hec/platform_metrics
         {{- end }}
         {{- end }}
-        - logging
     {{- end }}
 {{- end }}

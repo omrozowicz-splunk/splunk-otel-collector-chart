@@ -139,7 +139,7 @@ k8sattributes:
 {{- end }}
 
 {{/*
-Common config for K8s attributes processor adding k8s metadata to resource attributes.
+Common config for K8s attributes processor adding k8s metadata to resource attributes for metrics.
 */}}
 {{- define "splunk-otel-collector.k8sAttributesProcessorMetrics" -}}
 k8sattributes/metrics:
