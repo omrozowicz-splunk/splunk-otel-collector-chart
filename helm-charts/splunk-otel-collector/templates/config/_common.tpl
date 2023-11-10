@@ -168,10 +168,10 @@ k8sattributes/metrics:
       - k8s.pod.start_time
     annotations:
       - key: splunk.com/metricsIndex
-        tag_name: com.splunk.metricsIndex
+        tag_name: com.splunk.index
         from: namespace
       - key: splunk.com/metricsIndex
-        tag_name: com.splunk.metricsIndex
+        tag_name: com.splunk.index
         from: pod
 {{- end }}
 

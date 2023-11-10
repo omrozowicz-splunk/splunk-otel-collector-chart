@@ -89,6 +89,7 @@ processors:
     send_batch_max_size: 32768
 
   {{- include "splunk-otel-collector.resourceDetectionProcessor" . | nindent 2 }}
+  {{- include "splunk-otel-collector.k8sAttributesProcessorMetrics" . | nindent 2 }}
 
   {{- if eq (include "splunk-otel-collector.o11yInfraMonEventsEnabled" .) "true" }}
   resource/add_event_k8s:
@@ -239,6 +240,7 @@ service:
       receivers: [prometheus/k8s_cluster_receiver]
       processors:
         - memory_limiter
+        - k8sattributes/metrics
         - batch
         - resource/add_collector_k8s
         - resourcedetection
@@ -258,6 +260,7 @@ service:
         - k8s_events
       processors:
         - memory_limiter
+        - k8sattributes/metrics
         - batch
         - attributes/drop_event_attrs
         - resourcedetection
@@ -280,6 +283,7 @@ service:
         - k8sobjects
       processors:
         - memory_limiter
+        - k8sattributes/metrics
         - batch
         - resourcedetection
         - resource
@@ -302,6 +306,7 @@ service:
         - smartagent/kubernetes-events
       processors:
         - memory_limiter
+        - k8sattributes/metrics
         - batch
         - resource
         - resource/add_event_k8s
