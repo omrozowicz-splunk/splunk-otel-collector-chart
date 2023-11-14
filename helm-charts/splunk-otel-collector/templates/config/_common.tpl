@@ -170,7 +170,6 @@ k8sattributes/metrics:
   extract:
     metadata:
       - k8s.pod.name
-      - k8s.pod.uid
       - k8s.deployment.name
       - k8s.namespace.name
       - k8s.node.name
