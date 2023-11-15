@@ -463,7 +463,6 @@ func testK8sClusterReceiverMetrics(t *testing.T) {
 		pmetrictest.IgnoreMetricAttributeValue("container.id", metricNames...),
 		pmetrictest.IgnoreMetricAttributeValue("k8s.daemonset.uid", metricNames...),
 		pmetrictest.IgnoreMetricAttributeValue("k8s.deployment.uid", metricNames...),
-		pmetrictest.IgnoreMetricAttributeValue("k8s.deployment.name", metricNames...),
 		pmetrictest.IgnoreMetricAttributeValue("k8s.pod.uid", metricNames...),
 		pmetrictest.IgnoreMetricAttributeValue("k8s.pod.name", metricNames...),
 		pmetrictest.IgnoreMetricAttributeValue("k8s.replicaset.uid", metricNames...),
