@@ -168,11 +168,6 @@ k8sattributes/metrics:
       - from: resource_attribute
         name: host.name
   extract:
-    metadata:
-      - k8s.pod.name
-      - k8s.namespace.name
-      - k8s.node.name
-      - k8s.container.name
     annotations:
       - key: splunk.com/metricsIndex
         tag_name: com.splunk.index
