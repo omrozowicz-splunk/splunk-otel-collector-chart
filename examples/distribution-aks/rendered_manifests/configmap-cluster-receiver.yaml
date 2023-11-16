@@ -126,8 +126,8 @@ data:
           - memory_limiter
           - batch
           - resource
-          - resource/k8s_cluster
           - k8sattributes/metrics
+          - resource/k8s_cluster
           receivers:
           - k8s_cluster
         metrics/collector:
@@ -135,9 +135,9 @@ data:
           - signalfx
           processors:
           - memory_limiter
-          - k8sattributes/metrics
           - batch
           - resource/add_collector_k8s
+          - k8sattributes/metrics
           - resourcedetection
           - resource
           receivers:
