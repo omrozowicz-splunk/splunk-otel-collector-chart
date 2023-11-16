@@ -266,6 +266,7 @@ data:
           - signalfx
           processors:
           - memory_limiter
+          - k8sattributes/metrics
           - batch
           - resourcedetection
           - resource
@@ -280,6 +281,7 @@ data:
           - signalfx
           processors:
           - memory_limiter
+          - k8sattributes/metrics
           - batch
           - resource/add_agent_k8s
           - resourcedetection

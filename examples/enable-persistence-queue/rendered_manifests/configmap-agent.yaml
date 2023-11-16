@@ -456,6 +456,7 @@ data:
           - splunk_hec/platform_metrics
           processors:
           - memory_limiter
+          - k8sattributes/metrics
           - batch
           - resourcedetection
           - resource
@@ -470,6 +471,7 @@ data:
           - splunk_hec/platform_metrics
           processors:
           - memory_limiter
+          - k8sattributes/metrics
           - batch
           - resource/add_agent_k8s
           - resourcedetection

@@ -799,6 +799,7 @@ service:
       receivers: [hostmetrics, kubeletstats, otlp, receiver_creator, signalfx]
       processors:
         - memory_limiter
+        - k8sattributes/metrics
         - batch
         {{- if or .Values.autodetect.prometheus .Values.autodetect.istio }}
         - attributes/istio
@@ -815,7 +816,6 @@ service:
         {{- if .Values.isWindows }}
         - metricstransform
         {{- end }}
-        #- k8sattributes/metrics
       exporters:
         {{- if $gatewayEnabled }}
         - otlp
@@ -835,11 +835,11 @@ service:
       receivers: [prometheus/agent]
       processors:
         - memory_limiter
+        - k8sattributes/metrics
         - batch
         - resource/add_agent_k8s
         - resourcedetection
         - resource
-       # - k8sattributes/metrics
       exporters:
         {{- if (eq (include "splunk-otel-collector.splunkO11yEnabled" .) "true") }}
         # Use signalfx instead of otlp even if collector is enabled
