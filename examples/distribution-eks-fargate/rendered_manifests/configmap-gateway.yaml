@@ -205,9 +205,9 @@ data:
           - signalfx
           processors:
           - memory_limiter
-          - k8sattributes/metrics
           - batch
           - resource/add_cluster_name
+          - k8sattributes/metrics
           receivers:
           - otlp
           - signalfx
@@ -216,11 +216,11 @@ data:
           - signalfx
           processors:
           - memory_limiter
-          - k8sattributes/metrics
           - batch
           - resource/add_collector_k8s
           - resourcedetection
           - resource/add_cluster_name
+          - k8sattributes/metrics
           receivers:
           - prometheus/collector
         traces:

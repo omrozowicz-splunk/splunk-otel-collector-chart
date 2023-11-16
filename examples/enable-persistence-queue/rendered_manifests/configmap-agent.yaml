@@ -456,10 +456,10 @@ data:
           - splunk_hec/platform_metrics
           processors:
           - memory_limiter
-          - k8sattributes/metrics
           - batch
           - resourcedetection
           - resource
+          - k8sattributes/metrics
           receivers:
           - hostmetrics
           - kubeletstats
@@ -471,11 +471,11 @@ data:
           - splunk_hec/platform_metrics
           processors:
           - memory_limiter
-          - k8sattributes/metrics
           - batch
           - resource/add_agent_k8s
           - resourcedetection
           - resource
+          - k8sattributes/metrics
           receivers:
           - prometheus/agent
         traces:
