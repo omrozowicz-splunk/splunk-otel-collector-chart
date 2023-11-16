@@ -173,6 +173,7 @@ service:
       receivers: [otlp, signalfx]
       processors:
         - memory_limiter
+        - k8sattributes/metrics
         - batch
         - resource/add_cluster_name
         {{- if .Values.extraAttributes.custom }}
@@ -185,7 +186,6 @@ service:
         {{- if (and .Values.splunkPlatform.metricsEnabled .Values.environment) }}
         - resource/add_environment
         {{- end }}
-        #- k8sattributes/metrics
       exporters:
         {{- if (eq (include "splunk-otel-collector.o11yMetricsEnabled" .) "true") }}
         - signalfx
@@ -231,11 +231,11 @@ service:
       receivers: [prometheus/collector]
       processors:
         - memory_limiter
+        - k8sattributes/metrics
         - batch
         - resource/add_collector_k8s
         - resourcedetection
         - resource/add_cluster_name
-        #- k8sattributes/metrics
       exporters:
         {{- if (eq (include "splunk-otel-collector.splunkO11yEnabled" .) "true") }}
         - signalfx

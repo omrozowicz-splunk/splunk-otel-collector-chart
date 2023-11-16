@@ -205,6 +205,7 @@ data:
           - signalfx
           processors:
           - memory_limiter
+          - k8sattributes/metrics
           - batch
           - resource/add_cluster_name
           receivers:
@@ -215,6 +216,7 @@ data:
           - signalfx
           processors:
           - memory_limiter
+          - k8sattributes/metrics
           - batch
           - resource/add_collector_k8s
           - resourcedetection
