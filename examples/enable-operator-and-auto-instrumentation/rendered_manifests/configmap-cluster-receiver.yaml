@@ -124,7 +124,6 @@ data:
           - memory_limiter
           - batch
           - resource
-          - k8sattributes/metrics
           - resource/k8s_cluster
           receivers:
           - k8s_cluster

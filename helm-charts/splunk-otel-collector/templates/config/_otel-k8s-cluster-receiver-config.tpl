@@ -210,7 +210,7 @@ service:
     # k8s metrics pipeline
     metrics:
       receivers: [k8s_cluster]
-      processors: [memory_limiter, batch, resource, k8sattributes/metrics, resource/k8s_cluster]
+      processors: [memory_limiter, batch, resource, resource/k8s_cluster] #k8sattributes/metrics,
       exporters:
         {{- if (eq (include "splunk-otel-collector.o11yMetricsEnabled" .) "true") }}
         - signalfx
