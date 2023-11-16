@@ -237,9 +237,9 @@ service:
       receivers: [prometheus/k8s_cluster_receiver]
       processors:
         - memory_limiter
+        - k8sattributes/metrics
         - batch
         - resource/add_collector_k8s
-        - k8sattributes/metrics
         - resourcedetection
         - resource
       exporters:
