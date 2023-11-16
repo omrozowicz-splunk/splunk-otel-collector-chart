@@ -142,10 +142,10 @@ data:
           - signalfx
           processors:
           - memory_limiter
+          - k8sattributes/metrics
           - batch
           - resource
           - resource/k8s_cluster
-          - k8sattributes/metrics
           receivers:
           - k8s_cluster
           - prometheus/k8s-api-server

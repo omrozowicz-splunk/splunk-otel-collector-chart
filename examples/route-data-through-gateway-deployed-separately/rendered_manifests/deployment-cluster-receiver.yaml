@@ -30,7 +30,7 @@ spec:
         component: otel-k8s-cluster-receiver
         release: default
       annotations:
-        checksum/config: c363b6a3e9d7c0d5dd728138b67a3636828a21ed875b7824c81f885f1b0f8b93
+        checksum/config: 56650e8235305ad03caa4e61ee274e6c84d206e93b8303fea29b670caa014acf
     spec:
       serviceAccountName: default-splunk-otel-collector
       nodeSelector:
