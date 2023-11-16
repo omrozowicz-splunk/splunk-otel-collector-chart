@@ -319,7 +319,6 @@ data:
           - resource/add_agent_k8s
           - resourcedetection
           - resource
-          - k8sattributes/metrics
           receivers:
           - prometheus/agent
       telemetry:

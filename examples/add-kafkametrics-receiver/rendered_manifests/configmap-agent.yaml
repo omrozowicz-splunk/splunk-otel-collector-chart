@@ -410,7 +410,6 @@ data:
           - batch
           - resourcedetection
           - resource
-          - k8sattributes/metrics
           receivers:
           - kafkametrics
         metrics/agent:
@@ -422,7 +421,6 @@ data:
           - resource/add_agent_k8s
           - resourcedetection
           - resource
-          - k8sattributes/metrics
           receivers:
           - prometheus/agent
         traces:

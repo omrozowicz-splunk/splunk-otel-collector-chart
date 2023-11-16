@@ -459,7 +459,6 @@ data:
           - batch
           - resourcedetection
           - resource
-          - k8sattributes/metrics
           receivers:
           - hostmetrics
           - kubeletstats
@@ -475,7 +474,6 @@ data:
           - resource/add_agent_k8s
           - resourcedetection
           - resource
-          - k8sattributes/metrics
           receivers:
           - prometheus/agent
         traces:

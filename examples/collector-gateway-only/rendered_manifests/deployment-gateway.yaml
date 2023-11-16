@@ -30,7 +30,7 @@ spec:
         component: otel-collector
         release: default
       annotations:
-        checksum/config: 12ad8b9fdf1f12af4fa17066117fdfaac3258896d28cb986abb46c70e25b81a8
+        checksum/config: 2a00581f9e3c37abf703efc091d35b02c1f0b2abf86e599a85b04fabd22c56a7
     spec:
       serviceAccountName: default-splunk-otel-collector
       nodeSelector:

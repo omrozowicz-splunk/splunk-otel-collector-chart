@@ -126,7 +126,6 @@ data:
           - batch
           - resource
           - resource/k8s_cluster
-          - k8sattributes/metrics
           receivers:
           - k8s_cluster
         metrics/collector:
@@ -138,7 +137,6 @@ data:
           - resource/add_collector_k8s
           - resourcedetection
           - resource
-          - k8sattributes/metrics
           receivers:
           - prometheus/k8s_cluster_receiver
       telemetry:
