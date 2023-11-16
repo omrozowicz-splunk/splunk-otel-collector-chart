@@ -473,7 +473,7 @@ func testK8sClusterReceiverMetrics(t *testing.T) {
 		pmetrictest.IgnoreMetricAttributeValue("container.image.tag", metricNames...),
 		pmetrictest.IgnoreMetricAttributeValue("k8s.node.uid", metricNames...),
 		pmetrictest.IgnoreMetricValues(metricNames...),
-		pmetrictest.ChangeResourceAttributeValue("k8s.deployment.name", shortenNames),
+		pmetrictest.ChangeResourceAttributeValue("k8s.deployment.name", replaceWithStar),
 		pmetrictest.ChangeResourceAttributeValue("k8s.pod.name", shortenNames),
 		pmetrictest.ChangeResourceAttributeValue("k8s.replicaset.name", shortenNames),
 		pmetrictest.ChangeResourceAttributeValue("k8s.deployment.uid", replaceWithStar),
