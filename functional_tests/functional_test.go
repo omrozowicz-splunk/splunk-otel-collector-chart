@@ -457,7 +457,7 @@ func testK8sClusterReceiverMetrics(t *testing.T) {
 	require.NotNil(t, selected)
 
 	metricNames := []string{"k8s.node.condition_ready", "k8s.namespace.phase", "k8s.pod.phase", "k8s.replicaset.desired", "k8s.replicaset.available", "k8s.daemonset.ready_nodes", "k8s.daemonset.misscheduled_nodes", "k8s.daemonset.desired_scheduled_nodes", "k8s.daemonset.current_scheduled_nodes", "k8s.container.ready", "k8s.container.memory_request", "k8s.container.memory_limit", "k8s.container.cpu_request", "k8s.container.cpu_limit", "k8s.deployment.desired", "k8s.deployment.available", "k8s.container.restarts", "k8s.container.cpu_request", "k8s.container.memory_request", "k8s.container.memory_limit"}
-
+k8s.deployment.name:
 	err = pmetrictest.CompareMetrics(expectedMetrics, *selected,
 		pmetrictest.IgnoreTimestamp(),
 		pmetrictest.IgnoreStartTimestamp(),
@@ -472,8 +472,8 @@ func testK8sClusterReceiverMetrics(t *testing.T) {
 		pmetrictest.IgnoreMetricAttributeValue("k8s.namespace.uid", metricNames...),
 		pmetrictest.IgnoreMetricAttributeValue("container.image.tag", metricNames...),
 		pmetrictest.IgnoreMetricAttributeValue("k8s.node.uid", metricNames...),
+		pmetrictest.IgnoreMetricAttributeValue("k8s.pod.start_time", metricNames...),
 		pmetrictest.IgnoreMetricValues(metricNames...),
-		pmetrictest.ChangeResourceAttributeValue("k8s.deployment.name", replaceWithStar),
 		pmetrictest.ChangeResourceAttributeValue("k8s.pod.name", shortenNames),
 		pmetrictest.ChangeResourceAttributeValue("k8s.replicaset.name", shortenNames),
 		pmetrictest.ChangeResourceAttributeValue("k8s.deployment.uid", replaceWithStar),
