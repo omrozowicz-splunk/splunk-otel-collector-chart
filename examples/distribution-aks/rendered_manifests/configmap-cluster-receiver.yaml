@@ -137,7 +137,6 @@ data:
           - memory_limiter
           - batch
           - resource/add_collector_k8s
-          - k8sattributes/metrics
           - resourcedetection
           - resource
           receivers:
