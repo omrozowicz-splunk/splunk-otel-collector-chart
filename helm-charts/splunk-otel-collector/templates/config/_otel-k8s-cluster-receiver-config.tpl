@@ -222,7 +222,7 @@ service:
     {{- if eq (include "splunk-otel-collector.distribution" .) "eks/fargate" }}
     metrics/eks:
       receivers: [receiver_creator]
-      processors: [memory_limiter, batch, resource]#, k8sattributes/metrics]
+      processors: [memory_limiter, batch, resource, k8sattributes/metrics]
       exporters:
         {{- if (eq (include "splunk-otel-collector.o11yMetricsEnabled" .) "true") }}
         - signalfx

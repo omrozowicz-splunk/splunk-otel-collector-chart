@@ -168,6 +168,7 @@ data:
           - memory_limiter
           - batch
           - resource
+          - k8sattributes/metrics
           receivers:
           - receiver_creator
       telemetry:
