@@ -98,7 +98,11 @@ Splunk OpenTelemetry Collector for Kubernetes supports collection of metrics,
 traces and logs (using OTel native logs collection only) from Windows nodes.
 
 All windows images are available in a separate `quay.io` repository:
-`quay.io/signalfx/splunk-otel-collector-windows`.
+`quay.io/signalfx/splunk-otel-collector-windows` with two release tracking tags
+available: `latest` (Server 2019) and `latest-2022` (Server 2022). Version tags
+follow the convention of `<appVersion>` (2019) and `<appVersion>-2022` (2022).
+The digests for each release are detailed at
+https://github.com/signalfx/splunk-otel-collector/releases.
 
 Use the following values.yaml configuration to install the helm chart on Windows
 worker nodes:
@@ -108,6 +112,7 @@ isWindows: true
 image:
   otelcol:
     repository: quay.io/signalfx/splunk-otel-collector-windows
+    tag: <appVersion>-2022
 logsEngine: otel
 readinessProbe:
   initialDelaySeconds: 60
@@ -469,6 +474,7 @@ logsCollection:
         containerName:
           value: server
         firstEntryRegex: ^[^\s].*
+        combineWith: ""
 ```
 
 Use https://regex101.com/ to find a golang regex that works for your format and specify it in the config file for the config option `firstEntryRegex`.
@@ -502,6 +508,7 @@ Manage Splunk OTel Collector Logging with these supported annotations.
 
 * Use `splunk.com/index` annotation on pod and/or namespace to tell which Splunk platform indexes to ingest to. Pod annotation will take precedence over namespace annotation when both are annotated.
   For example, the following command will make logs from `kube-system` namespace to be sent to `k8s_events` index: `kubectl annotate namespace kube-system splunk.com/index=k8s_events`
+* Use `splunk.com/metricsIndex` annotation on pod and/or namespace to tell which Splunk platform metrics indexes to ingest to. Works the same way as `splunk.com/index` annotation.
 * Filter logs using pod and/or namespace annotation
   * If `logsCollection.containers.useSplunkIncludeAnnotation` is `false` (default: false), set `splunk.com/exclude` annotation to `true` on pod and/or namespace to exclude its logs from ingested.
   * If `logsCollection.containers.useSplunkIncludeAnnotation` is `true` (default: false), set `splunk.com/include` annotation to `true` on pod and/or namespace to only include its logs from ingested. All other logs will be ignored.

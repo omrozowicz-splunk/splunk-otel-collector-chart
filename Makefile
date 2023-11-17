@@ -19,6 +19,8 @@ $(LOCALBIN):
 	mkdir -p $(LOCALBIN)
 CHLOGGEN ?= $(LOCALBIN)/chloggen
 
+CERTMANAGER_VERSION ?= $(shell yq eval ".dependencies[] | select(.name == \"cert-manager\") | .version" helm-charts/splunk-otel-collector/Chart.yaml)
+
 # The help target as provided
 .PHONY: help
 help: ## Display Makefile help information for all actions
@@ -64,6 +66,19 @@ dep-build: ## Build the Helm chart with latest dependencies from the current Hel
 render: repo-update dep-build ## Render the Helm chart with the examples as input
 	examples/render-examples.sh || exit 1
 
+##@ Test
+# Tasks related to testing the Helm chart
+
+.PHONY: lint
+lint: ## Lint the Helm chart with ct
+	@echo "Linting Helm chart..."
+	ct lint --config=ct.yaml || exit 1
+
+.PHONY: pre-commit
+pre-commit: render ## Test the Helm chart with pre-commit
+	@echo "Checking the Helm chart with pre-commit..."
+	pre-commit run --all-files || exit 1
+
 ##@ Changelog
 # Tasks related to changelog management
 
@@ -95,3 +110,29 @@ chlog-preview: chlog-validate ## Provide a preview of the generated CHANGELOG.md
 chlog-update: chlog-validate ## Creates an update to CHANGELOG.md for a release entry from content in .chloggen
 	$(CHLOGGEN) update --version "[$(VERSION)] - $$(date +'%Y-%m-%d')" || exit 1; \
 	ci_scripts/chloggen-update.sh || exit 1
+
+##@ Cert Manager
+# Tasks related to deploying and managing Cert Manager
+
+.PHONY: cert-manager
+cert-manager: cmctl ## Installs cert-manager in the current Kubernetes cluster and verifies API access with cmctl
+	# Consider using cmctl to install the cert-manager once install command is not experimental
+	kubectl apply --validate=false -f https://github.com/jetstack/cert-manager/releases/download/${CERTMANAGER_VERSION}/cert-manager.yaml
+	$(CMCTL) check api --wait=5m
+
+PROJECT_DIR := $(shell dirname $(abspath $(lastword $(MAKEFILE_LIST))))
+CMCTL = $(shell pwd)/bin/cmctl
+.PHONY: cmctl
+cmctl: ## Downloads and installs cmctl, the CLI for cert-manager, to your local system
+	@{ \
+	set -e ;\
+	if (`pwd`/bin/cmctl version | grep ${CERTMANAGER_VERSION}) > /dev/null 2>&1 ; then \
+		exit 0; \
+	fi ;\
+	TMP_DIR=$$(mktemp -d) ;\
+	curl -L -o $$TMP_DIR/cmctl.tar.gz https://github.com/jetstack/cert-manager/releases/download/$(CERTMANAGER_VERSION)/cmctl-`go env GOOS`-`go env GOARCH`.tar.gz ;\
+	tar xzf $$TMP_DIR/cmctl.tar.gz -C $$TMP_DIR ;\
+	[ -d bin ] || mkdir bin ;\
+	mv $$TMP_DIR/cmctl $(CMCTL) ;\
+	rm -rf $$TMP_DIR ;\
+	}

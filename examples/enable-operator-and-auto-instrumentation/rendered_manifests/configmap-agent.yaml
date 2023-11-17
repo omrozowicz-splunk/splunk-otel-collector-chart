@@ -6,12 +6,12 @@ metadata:
   name: default-splunk-otel-collector-otel-agent
   labels:
     app.kubernetes.io/name: splunk-otel-collector
-    helm.sh/chart: splunk-otel-collector-0.85.0
+    helm.sh/chart: splunk-otel-collector-0.86.1
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/instance: default
-    app.kubernetes.io/version: "0.85.0"
+    app.kubernetes.io/version: "0.87.0"
     app: splunk-otel-collector
-    chart: splunk-otel-collector-0.85.0
+    chart: splunk-otel-collector-0.86.1
     release: default
     heritage: Helm
 data:
@@ -84,6 +84,39 @@ data:
         - sources:
           - from: resource_attribute
             name: k8s.pod.uid
+        - sources:
+          - from: resource_attribute
+            name: k8s.pod.ip
+        - sources:
+          - from: resource_attribute
+            name: ip
+        - sources:
+          - from: connection
+        - sources:
+          - from: resource_attribute
+            name: host.name
+      k8sattributes/metrics:
+        extract:
+          annotations:
+          - from: namespace
+            key: splunk.com/metricsIndex
+            tag_name: com.splunk.index
+          - from: pod
+            key: splunk.com/metricsIndex
+            tag_name: com.splunk.index
+        pod_association:
+        - sources:
+          - from: resource_attribute
+            name: k8s.namespace.name
+        - sources:
+          - from: resource_attribute
+            name: k8s.node.name
+        - sources:
+          - from: resource_attribute
+            name: k8s.pod.name
+        - sources:
+          - from: resource_attribute
+            name: k8s.container.name
         - sources:
           - from: resource_attribute
             name: k8s.pod.ip
@@ -239,6 +272,8 @@ data:
           id: clean-up-log-record
           to: body
           type: move
+        - field: attributes.time
+          type: remove
         poll_interval: 200ms
         retry_on_failure:
           enabled: true
@@ -374,6 +409,7 @@ data:
           - batch
           - resourcedetection
           - resource
+          - k8sattributes/metrics
           receivers:
           - hostmetrics
           - kubeletstats
@@ -389,6 +425,7 @@ data:
           - resource/add_agent_k8s
           - resourcedetection
           - resource
+          - k8sattributes/metrics
           receivers:
           - prometheus/agent
         traces:

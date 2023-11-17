@@ -587,6 +587,7 @@ logsCollection:
     #     containerName:
     #       value: server
     #     firstEntryRegex: ^[^\s].*
+    #     combineWith: ""
     multilineConfigs: []
     # Set useSplunkIncludeAnnotation flag to `true` to collect logs from pods with `splunk.com/include: true` annotation and ignore others.
     # All other logs will be ignored.
@@ -700,6 +701,15 @@ fluentd:
     # Can be used if you want to run multiple instances of fluentd on the same host
     # https://docs.fluentd.org/input/tail#pos_file-highly-recommended
     posFilePrefix: /var/log/splunk-fluentd
+
+    # Specify the interval of refreshing the list of watch file. Defaults to 60 (seconds)
+    # uncomment the line below to override default behaviour
+    # refreshInterval: 60
+
+    # Enables the stat_watcher. Defaults to true.
+    # See: https://docs.fluentd.org/v1.0/articles/in_tail#enable_stat_watcher"
+    # uncomment the line below to disable it
+    # enableStatWatcher: false
 
     # `customFilters` defines the custom filters to be used.
     # This section can be used to define custom filters using plugins like https://github.com/splunk/fluent-plugin-jq
@@ -1122,7 +1132,13 @@ service:
   # Service annotations
   annotations: {}
 
-# Default values for splunk-otel-network-explorer.
+################################################################################
+# Configuration section for Network Explorer (disabled by default).
+# Network Explorer allows you to collect network metrics from linux kernel.
+# Note that Network Explorer is not supported for Linux kernel version 6 at the moment.
+# Setting networkExplorer.enabled=true for Linux kernel 6 will lead to errors.
+################################################################################
+
 networkExplorer:
   enabled: false
   images:
@@ -1420,20 +1436,20 @@ operator:
         repository: ghcr.io/signalfx/splunk-otel-java/splunk-otel-java
         tag: v1.28.0
       nodejs:
-        repository: ghcr.io/open-telemetry/opentelemetry-operator/autoinstrumentation-nodejs
-        tag: 0.41.1
+        repository: ghcr.io/signalfx/splunk-otel-js/splunk-otel-js
+        tag: v2.4.4
       go:
         repository: ghcr.io/open-telemetry/opentelemetry-operator/autoinstrumentation-go
-        tag: v0.2.2-alpha
+        tag: v0.7.0-alpha
       apache-httpd:
         repository: ghcr.io/open-telemetry/opentelemetry-operator/autoinstrumentation-apache-httpd
         tag: 1.0.3
       python:
         repository: ghcr.io/open-telemetry/opentelemetry-operator/autoinstrumentation-python
-        tag: 0.40b0
+        tag: 0.41b0
       dotnet:
         repository: ghcr.io/open-telemetry/opentelemetry-operator/autoinstrumentation-dotnet
-        tag: 1.0.0-rc.2
+        tag: 1.0.2
       # Auto-instrumentation Libraries (End)
   admissionWebhooks:
     certManager:

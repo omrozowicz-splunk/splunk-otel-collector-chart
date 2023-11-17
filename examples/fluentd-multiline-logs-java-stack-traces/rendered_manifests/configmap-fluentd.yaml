@@ -6,12 +6,12 @@ metadata:
   name: default-splunk-otel-collector-fluentd
   labels:
     app.kubernetes.io/name: splunk-otel-collector
-    helm.sh/chart: splunk-otel-collector-0.85.0
+    helm.sh/chart: splunk-otel-collector-0.86.1
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/instance: default
-    app.kubernetes.io/version: "0.85.0"
+    app.kubernetes.io/version: "0.87.0"
     app: splunk-otel-collector
-    chart: splunk-otel-collector-0.85.0
+    chart: splunk-otel-collector-0.86.1
     release: default
     heritage: Helm
 data:
@@ -73,6 +73,8 @@ data:
       pos_file /var/log/splunk-fluentd-containers.log.pos
       path_key source
       read_from_head true
+      enable_stat_watcher true
+      refresh_interval 60
       <parse>
         @include source.containers.parse.conf
         time_key time

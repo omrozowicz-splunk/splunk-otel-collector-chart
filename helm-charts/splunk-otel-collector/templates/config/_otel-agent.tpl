@@ -409,6 +409,9 @@ receivers:
         combine_field: attributes.log
         is_first_entry: '(attributes.log) matches {{ .firstEntryRegex | quote }}'
         max_log_size: {{ $.Values.logsCollection.containers.maxRecombineLogSize }}
+        {{- if hasKey . "combineWith" }}
+        combine_with: {{ .combineWith | quote }}
+        {{- end }}
       {{- end }}
       {{- end }}
       # Clean up log record
@@ -416,6 +419,8 @@ receivers:
         id: clean-up-log-record
         from: attributes.log
         to: body
+      - type: remove
+        field: attributes.time
   {{- end }}
 
   {{- if .Values.logsCollection.extraFileLogs }}
@@ -478,6 +483,8 @@ processors:
     {{- end }}
     filter:
       node_from_env_var: K8S_NODE_NAME
+
+  {{- include "splunk-otel-collector.k8sAttributesProcessorMetrics" . | nindent 2 }}
 
   {{- if eq .Values.logsEngine "fluentd" }}
   # Move flat fluentd logs attributes to resource attributes
@@ -808,6 +815,7 @@ service:
         {{- if .Values.isWindows }}
         - metricstransform
         {{- end }}
+        - k8sattributes/metrics
       exporters:
         {{- if $gatewayEnabled }}
         - otlp
@@ -831,6 +839,7 @@ service:
         - resource/add_agent_k8s
         - resourcedetection
         - resource
+        - k8sattributes/metrics
       exporters:
         {{- if (eq (include "splunk-otel-collector.splunkO11yEnabled" .) "true") }}
         # Use signalfx instead of otlp even if collector is enabled
