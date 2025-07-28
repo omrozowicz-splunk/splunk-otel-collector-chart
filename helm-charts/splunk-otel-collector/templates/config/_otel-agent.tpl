@@ -759,7 +759,7 @@ processors:
   {{- include "splunk-otel-collector.k8sAttributesSplunkPlatformMetrics" . | nindent 2 }}
     filter:
       node_from_env_var: K8S_NODE_NAME
-  {{- if .Values.splunkPlatform.sourcetype }}
+  {{- if not .Values.splunkPlatform.metricsSourcetype and .Values.splunkPlatform.sourcetype }}
   {{- include "splunk-otel-collector.resourceMetricsProcessor" . | nindent 2 }}
   {{- end }}
   {{- end }}
@@ -810,7 +810,7 @@ processors:
   {{- include "splunk-otel-collector.resourceDetectionProcessorKubernetesClusterName" . | nindent 2 }}
   {{- end }}
 
-  # General resource attributes that apply to all telemetry passing through the agent.
+  # General resource attributes that ap ply to all telemetry passing through the agent.
   # It's important to put this processor after resourcedetection to make sure that
   # k8s.name.cluster attribute is always set to "{{ .Values.clusterName }}" when
   # it's declared.
@@ -1159,7 +1159,7 @@ service:
         {{- end }}
         {{- if (eq (include "splunk-otel-collector.platformMetricsEnabled" $) "true") }}
         - k8sattributes/metrics
-        {{- if .Values.splunkPlatform.sourcetype }}
+        {{- if not .Values.splunkPlatform.metricsSourcetype and .Values.splunkPlatform.sourcetype }}
         - resource/metrics
         {{- end }}
         {{- end }}
@@ -1189,7 +1189,7 @@ service:
         - resource/add_mode
         {{- if (eq (include "splunk-otel-collector.platformMetricsEnabled" $) "true") }}
         - k8sattributes/metrics
-        {{- if .Values.splunkPlatform.sourcetype }}
+        {{- if not .Values.splunkPlatform.metricsSourcetype and .Values.splunkPlatform.sourcetype }}
         - resource/metrics
         {{- end }}
         {{- end }}

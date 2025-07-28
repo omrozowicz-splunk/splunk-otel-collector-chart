@@ -476,6 +476,9 @@ splunk_hec/platform_metrics:
   token: "${SPLUNK_PLATFORM_HEC_TOKEN}"
   index: {{ .Values.splunkPlatform.metricsIndex | quote }}
   source: {{ .Values.splunkPlatform.source | quote }}
+  {{- if .Values.splunkPlatform.metricsSourcetype }}
+  sourcetype: {{ .Values.splunkPlatform.metricsSourcetype | quote }}
+  {{- end }}
   max_idle_conns: {{ .Values.splunkPlatform.maxConnections }}
   max_idle_conns_per_host: {{ .Values.splunkPlatform.maxConnections }}
   disable_compression: {{ .Values.splunkPlatform.disableCompression }}
