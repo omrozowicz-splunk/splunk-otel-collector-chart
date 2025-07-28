@@ -759,7 +759,7 @@ processors:
   {{- include "splunk-otel-collector.k8sAttributesSplunkPlatformMetrics" . | nindent 2 }}
     filter:
       node_from_env_var: K8S_NODE_NAME
-  {{- if not .Values.splunkPlatform.metricsSourcetype and .Values.splunkPlatform.sourcetype }}
+  {{- if and (not .Values.splunkPlatform.metricsSourcetype) .Values.splunkPlatform.sourcetype }}
   {{- include "splunk-otel-collector.resourceMetricsProcessor" . | nindent 2 }}
   {{- end }}
   {{- end }}
@@ -1159,7 +1159,7 @@ service:
         {{- end }}
         {{- if (eq (include "splunk-otel-collector.platformMetricsEnabled" $) "true") }}
         - k8sattributes/metrics
-        {{- if not .Values.splunkPlatform.metricsSourcetype and .Values.splunkPlatform.sourcetype }}
+        {{- if and (not .Values.splunkPlatform.metricsSourcetype) .Values.splunkPlatform.sourcetype }}
         - resource/metrics
         {{- end }}
         {{- end }}
@@ -1189,7 +1189,7 @@ service:
         - resource/add_mode
         {{- if (eq (include "splunk-otel-collector.platformMetricsEnabled" $) "true") }}
         - k8sattributes/metrics
-        {{- if not .Values.splunkPlatform.metricsSourcetype and .Values.splunkPlatform.sourcetype }}
+        {{- if and (not .Values.splunkPlatform.metricsSourcetype) .Values.splunkPlatform.sourcetype }}
         - resource/metrics
         {{- end }}
         {{- end }}
