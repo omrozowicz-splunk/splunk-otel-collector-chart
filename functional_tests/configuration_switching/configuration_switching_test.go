@@ -388,7 +388,6 @@ func testVerifyLogsAndMetricsAttributes(t *testing.T) {
 			t.Logf("Attributes for %s: %v", attr, attrValues)
 		}
 	})
-
 }
 
 func checkPodExists(pods *corev1.PodList, podNamePrefix string) bool {
