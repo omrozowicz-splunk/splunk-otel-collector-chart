@@ -40,7 +40,7 @@ processors:
   {{- include "splunk-otel-collector.k8sAttributesSplunkPlatformMetrics" . | nindent 2 }}
     filter:
       node_from_env_var: K8S_NODE_NAME
-  {{- if not .Values.splunkPlatform.sourcetypeMetrics and .Values.splunkPlatform.sourcetype }}
+  {{- if or .Values.splunkPlatform.metricsSourcetype .Values.splunkPlatform.sourcetype }}
   {{- include "splunk-otel-collector.resourceMetricsProcessor" . | nindent 2 }}
   {{- end }}
   {{- end }}
