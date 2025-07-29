@@ -251,7 +251,7 @@ service:
         {{- end }}
         {{- if (eq (include "splunk-otel-collector.platformMetricsEnabled" $) "true") }}
         - k8sattributes/metrics
-        {{- if and (not .Values.splunkPlatform.metricsSourcetype) .Values.splunkPlatform.sourcetype }}
+        {{- if or .Values.splunkPlatform.metricsSourcetype .Values.splunkPlatform.sourcetype }}
         - resource/metrics
         {{- end }}
         {{- end }}
@@ -331,7 +331,7 @@ service:
         {{- end }}
         {{- if (eq (include "splunk-otel-collector.platformMetricsEnabled" $) "true") }}
         - k8sattributes/metrics
-        {{- if and (not .Values.splunkPlatform.metricsSourcetype) .Values.splunkPlatform.sourcetype }}
+        {{- if or .Values.splunkPlatform.metricsSourcetype .Values.splunkPlatform.sourcetype }}
         - resource/metrics
         {{- end }}
         {{- end }}
