@@ -8,6 +8,8 @@ splunkPlatform:
   index: {{ .LogsIndex }}
   {{ if .NonDefaultSourcetype }}
   sourcetype: {{ .Sourcetype }}
+  sourcetypeMetrics: {{ .SourcetypeMetrics }}
+  {{ else }}
   {{ end }}
 
 agent:

@@ -154,6 +154,7 @@ func testIndexSwitch(t *testing.T) {
 	logsIndex := "main"
 	newLogsIndex := "newLogsIndex"
 	nonDefaultSourcetype := "my-sourcetype"
+	nonDefaultSourcetypeMetrics := "my-sourcetype-metrics"
 
 	valuesFileName := "values_indexes_switching.yaml.tmpl"
 	hecMetricsConsumer := globalSinks.hecMetricsConsumer
@@ -189,7 +190,7 @@ func testIndexSwitch(t *testing.T) {
 		assert.Len(t, indices, 1)
 		assert.Equal(t, logsIndex, indices[0])
 
-		mIndices := getMetricsIndex(hecMetricsConsumer.AllMetrics())
+		_, mIndices := getMetricsIndexAndSourceType(hecMetricsConsumer.AllMetrics())
 		assert.Len(t, mIndices, 1)
 		assert.Equal(t, metricsIndex, mIndices[0])
 	})
@@ -200,6 +201,7 @@ func testIndexSwitch(t *testing.T) {
 			"LogsIndex":            newLogsIndex,
 			"NonDefaultSourcetype": true,
 			"Sourcetype":           nonDefaultSourcetype,
+			"SourcetypeMetrics":    nonDefaultSourcetypeMetrics,
 		}
 		deployChartsAndApps(t, valuesFileName, replacements)
 		internal.ResetMetricsSink(t, hecMetricsConsumer)
@@ -213,8 +215,9 @@ func testIndexSwitch(t *testing.T) {
 		assert.Contains(t, sourcetypes, nonDefaultSourcetype)
 
 		internal.WaitForMetrics(t, 3, hecMetricsConsumer)
-		mIndices := getMetricsIndex(hecMetricsConsumer.AllMetrics())
+		mSourcetypes, mIndices := getMetricsIndexAndSourceType(hecMetricsConsumer.AllMetrics())
 		assert.Contains(t, mIndices, newMetricsIndex)
+		assert.Contains(t, mSourcetypes, nonDefaultSourcetypeMetrics)
 	})
 }
 
@@ -359,6 +362,7 @@ func testVerifyLogsAndMetricsAttributes(t *testing.T) {
 			t.Logf("Attributes for %s: %v", attr, attrValues)
 		}
 	})
+
 }
 
 func checkPodExists(pods *corev1.PodList, podNamePrefix string) bool {
@@ -413,10 +417,18 @@ func getLogsIndexAndSourceType(logs []plog.Logs) ([]string, []string) {
 }
 
 // get metrics index from metrics
-func getMetricsIndex(metrics []pmetric.Metrics) []string {
+func getMetricsIndexAndSourceType(metrics []pmetric.Metrics) ([]string, []string) {
+	var sourcetypes []string
 	var indices []string
 	for i := 0; i < len(metrics); i++ {
 		m := metrics[i]
+		if value, ok := m.ResourceMetrics().At(0).Resource().Attributes().Get("com.splunk.sourcetype"); ok {
+			sourcetype := value.AsString()
+			// check if index is already in the list
+			if !contains(sourcetypes, sourcetype) {
+				sourcetypes = append(sourcetypes, sourcetype)
+			}
+		}
 		if value, ok := m.ResourceMetrics().At(0).Resource().Attributes().Get("com.splunk.index"); ok {
 			index := value.AsString()
 			if !contains(indices, index) {
@@ -424,7 +436,7 @@ func getMetricsIndex(metrics []pmetric.Metrics) []string {
 			}
 		}
 	}
-	return indices
+	return sourcetypes, indices
 }
 
 func contains(list []string, newValue string) bool {
