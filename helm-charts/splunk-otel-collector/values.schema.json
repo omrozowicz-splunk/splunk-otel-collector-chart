@@ -61,7 +61,7 @@
         "sourcetype": {
           "type": "string"
         },
-        "metricsSourcetype": {
+        "sourcetypeMetrics": {
           "type": "string"
         },
         "maxConnections": {

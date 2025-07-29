@@ -60,7 +60,6 @@ data:
           num_consumers: 10
           queue_size: 1000
         source: kubernetes
-        sourcetype: metrics
         splunk_app_name: splunk-otel-collector
         splunk_app_version: 0.129.0
         timeout: 10s
