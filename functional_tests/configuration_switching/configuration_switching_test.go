@@ -195,7 +195,7 @@ func testIndexSwitch(t *testing.T) {
 		assert.Equal(t, metricsIndex, mIndices[0])
 	})
 
-	t.Run("non_default_source_type", func(t *testing.T) {
+	t.Run("non_default_source_type for both logs and another one for metrics", func(t *testing.T) {
 		replacements := map[string]any{
 			"MetricsIndex":         newMetricsIndex,
 			"LogsIndex":            newLogsIndex,
@@ -218,6 +218,32 @@ func testIndexSwitch(t *testing.T) {
 		mSourcetypes, mIndices := getMetricsIndexAndSourceType(hecMetricsConsumer.AllMetrics())
 		assert.Contains(t, mIndices, newMetricsIndex)
 		assert.Contains(t, mSourcetypes, nonDefaultSourcetypeMetrics)
+	})
+
+	t.Run("non_default_source_type for both logs and metrics", func(t *testing.T) {
+		replacements := map[string]any{
+			"MetricsIndex":         newMetricsIndex,
+			"LogsIndex":            newLogsIndex,
+			"NonDefaultSourcetype": true,
+			"Sourcetype":           nonDefaultSourcetype,
+		}
+		deployChartsAndApps(t, valuesFileName, replacements)
+		internal.ResetMetricsSink(t, hecMetricsConsumer)
+		internal.ResetLogsSink(t, agentLogsConsumer)
+
+		internal.WaitForLogs(t, 3, agentLogsConsumer)
+		logs := agentLogsConsumer.AllLogs()
+		sourcetypes, indices := getLogsIndexAndSourceType(logs)
+		t.Logf("Indices: %v", indices)
+		assert.Contains(t, indices, newLogsIndex)
+		assert.Contains(t, sourcetypes, nonDefaultSourcetype)
+
+		internal.WaitForMetrics(t, 3, hecMetricsConsumer)
+		mSourcetypes, mIndices := getMetricsIndexAndSourceType(hecMetricsConsumer.AllMetrics())
+		assert.Contains(t, mIndices, newMetricsIndex)
+		// according to the current logic the default sourcetype sets explicit sourcetype for all types of data
+		assert.Contains(t, mSourcetypes, nonDefaultSourcetype)
+		assert.NotContains(t, mSourcetypes, nonDefaultSourcetypeMetrics)
 	})
 }
 
