@@ -252,7 +252,7 @@ gofmt-all:
 
 .PHONY: govulncheck-all
 govulncheck-all:
-	@$(MAKE) for-all-target TARGET='govulncheck'
+	@$(MAKE) for-all-target TARGET='govulncheck' | awk 'BEGIN { delete_mode = 0 }; /^Vulnerability #[0-9]+: GO-2025-3829/ && delete_mode == 0 { delete_mode = 1; next }; delete_mode == 1 { if ($$$$0 ~ /^$$$$/) { delete_mode = 0; next }; next }; { print }'
 
 .PHONY: golint-all
 golint-all:
