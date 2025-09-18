@@ -210,6 +210,9 @@ func installRedisChart(t *testing.T, kubeConfig string) {
 		"replica": map[string]any{
 			"replicaCount": 0,
 		},
+		"image": map[string]any{
+			"repository": "bitnamilegacy/redis",
+		},
 	})
 	require.NoError(t, err)
 	t.Logf("Helm chart installed. Release name: %s", release.Name)
