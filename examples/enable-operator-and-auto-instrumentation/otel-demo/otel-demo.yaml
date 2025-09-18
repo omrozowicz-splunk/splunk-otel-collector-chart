@@ -1335,14 +1335,27 @@ spec:
               name: redis
           env: []
           resources:
+            requests:
+              memory: "100Mi" # Minimum memory needed to run Redis
+              cpu: "100m"
             limits:
-              memory: 50Mi
+              memory: "200Mi" # Max memory Redis can consume
+              cpu: "200m"
           securityContext:
             runAsGroup: 1000
             runAsNonRoot: true
             runAsUser: 999
-          volumeMounts:
-      volumes:
+          volumeMounts: []
+          readinessProbe:
+            exec:
+              command:
+                - redis-cli
+                - ping
+            initialDelaySeconds: 5 # Give Redis a few seconds to start
+            periodSeconds: 5       # Check every 5 seconds
+            timeoutSeconds: 5      # Timeout after 5 seconds
+            failureThreshold: 3    # Consider unready after 3 failures
+      volumes: []
 ---
 # Source: opentelemetry-demo/templates/component.yaml
 apiVersion: apps/v1
