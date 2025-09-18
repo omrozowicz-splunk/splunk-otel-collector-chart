@@ -9,8 +9,11 @@ metadata:
     app: {{ template "splunk-otel-collector.name" . }}
     chart: {{ template "splunk-otel-collector.chart" . }}
     release: {{ .Release.Name }}
-    heritage: {{ .Release.Service }}
 data:
   targetallocator.yaml: |
-    {{- .Values.targetAllocator.config | toYaml | nindent 4 }}
+    {{- $config := .Values.targetAllocator.config }}
+    {{- if not $config.collector_namespace }}
+    {{- $_ := set $config "collector_namespace" (include "splunk-otel-collector.namespace" .) }}
+    {{- end }}
+    {{- $config | toYaml | nindent 4 }}
 {{- end }}

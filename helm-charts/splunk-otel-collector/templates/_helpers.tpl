@@ -61,24 +61,10 @@ Whether traces enabled for Splunk Observability, backward compatible.
 {{- end -}}
 
 {{/*
-Whether logs enabled for Splunk Observability, backward compatible.
-*/}}
-{{- define "splunk-otel-collector.o11yLogsEnabled" -}}
-{{- and (eq (include "splunk-otel-collector.splunkO11yEnabled" .) "true") .Values.splunkObservability.logsEnabled }}
-{{- end -}}
-
-{{/*
 Whether Splunk Observability Profiling is enabled.
 */}}
 {{- define "splunk-otel-collector.o11yProfilingEnabled" -}}
 {{- and (eq (include "splunk-otel-collector.splunkO11yEnabled" .) "true") .Values.splunkObservability.profilingEnabled }}
-{{- end -}}
-
-{{/*
-Whether logs or profiling is enabled for Splunk Observability.
-*/}}
-{{- define "splunk-otel-collector.o11yLogsOrProfilingEnabled" -}}
-{{- or (eq (include "splunk-otel-collector.o11yLogsEnabled" .) "true") (eq (include "splunk-otel-collector.o11yProfilingEnabled" .) "true") }}
 {{- end -}}
 
 {{/*
@@ -120,7 +106,7 @@ Whether traces enabled for any destination.
 Whether logs enabled for any destination.
 */}}
 {{- define "splunk-otel-collector.logsEnabled" -}}
-{{- or (eq (include "splunk-otel-collector.o11yLogsEnabled" .) "true") (eq (include "splunk-otel-collector.platformLogsEnabled" .) "true") }}
+{{- include "splunk-otel-collector.platformLogsEnabled" . }}
 {{- end -}}
 
 {{/*
@@ -285,7 +271,7 @@ Common labels shared by all Kubernetes objects in this chart.
 {{- define "splunk-otel-collector.commonLabels" -}}
 app.kubernetes.io/name: {{ include "splunk-otel-collector.name" . }}
 helm.sh/chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
-app.kubernetes.io/managed-by: {{ .Release.Service }}
+app.kubernetes.io/managed-by: Helm
 app.kubernetes.io/instance: {{ .Release.Name }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end -}}

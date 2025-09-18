@@ -223,11 +223,8 @@ k8sattributes:
         tag_name: com.splunk.index
         from: pod
       {{- include "splunk-otel-collector.addExtraAnnotations" . | nindent 6 }}
-    {{- if or .Values.extraAttributes.podLabels .Values.extraAttributes.fromLabels }}
+    {{- if .Values.extraAttributes.fromLabels }}
     labels:
-      {{- range .Values.extraAttributes.podLabels }}
-      - key: {{ . }}
-      {{- end }}
       {{- include "splunk-otel-collector.addExtraLabels" . | nindent 6 }}
     {{- end }}
 {{- end }}
@@ -277,16 +274,15 @@ k8sattributes/metrics:
   pod_association:
     - sources:
       - from: resource_attribute
-        name: k8s.node.name
-    - sources:
-      - from: resource_attribute
         name: k8s.pod.uid
     - sources:
       - from: resource_attribute
-        name: k8s.pod.ip
+        name: k8s.namespace.name
+      - from: resource_attribute
+        name: k8s.pod.name
     - sources:
       - from: resource_attribute
-        name: ip
+        name: k8s.pod.ip
     - sources:
       - from: connection
   extract:
@@ -296,6 +292,12 @@ k8sattributes/metrics:
         tag_name: com.splunk.sourcetype
         from: namespace
       - key: splunk.com/sourcetype
+        tag_name: com.splunk.sourcetype
+        from: pod
+      - key: splunk.com/metricsSourcetype
+        tag_name: com.splunk.sourcetype
+        from: namespace
+      - key: splunk.com/metricsSourcetype
         tag_name: com.splunk.sourcetype
         from: pod
       - key: splunk.com/metricsIndex
@@ -343,11 +345,6 @@ resource/logs:
     - key: label_app
       from_attribute: k8s.pod.labels.app
       action: upsert
-    {{- range $_, $label := .Values.extraAttributes.podLabels }}
-    - key: {{ printf "label_%s" $label }}
-      from_attribute: {{ printf "k8s.pod.labels.%s" $label }}
-      action: upsert
-    {{- end }}
     {{- if not .Values.splunkPlatform.fieldNameConvention.keepOtelConvention }}
     - key: k8s.container.name
       action: delete
@@ -361,10 +358,6 @@ resource/logs:
       action: delete
     - key: k8s.pod.labels.app
       action: delete
-    {{- range $_, $label := .Values.extraAttributes.podLabels }}
-    - key: {{ printf "k8s.pod.labels.%s" $label }}
-      action: delete
-    {{- end }}
     {{- end }}
     {{- end }}
 {{- end }}
@@ -377,7 +370,11 @@ resource/metrics:
   attributes:
     # Insert the sourcetype value from values.yaml if it has not already been set through annotations.
     - key: com.splunk.sourcetype
-      value: "{{.Values.splunkPlatform.sourcetype }}"
+      {{- if .Values.splunkPlatform.metricsSourcetype }}
+      value: {{.Values.splunkPlatform.metricsSourcetype | quote }}
+      {{- else }}
+      value: {{.Values.splunkPlatform.sourcetype | quote }}
+      {{- end }}
       action: insert
 {{- end }}
 

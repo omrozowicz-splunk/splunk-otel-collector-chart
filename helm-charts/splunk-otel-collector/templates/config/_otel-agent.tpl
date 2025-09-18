@@ -266,8 +266,11 @@ receivers:
               {{- if eq .Values.distribution "openshift" }}
               static_configs:
                 - targets: ["`endpoint`:9154"]
+              scheme: https
               tls_config:
                 insecure_skip_verify: true
+                ca_file: /var/run/secrets/kubernetes.io/serviceaccount/service-ca.crt
+              bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
               {{- else }}
               static_configs:
                 - targets: ["`endpoint`:9153"]
@@ -674,6 +677,9 @@ receivers:
         {{- if hasKey . "combineWith" }}
         combine_with: {{ .combineWith | quote }}
         {{- end }}
+        {{- if hasKey . "maxNumOfLinesToCombine" }}
+        max_batch_size: {{ .maxNumOfLinesToCombine }}
+        {{- end }}
       {{- end }}
       {{- end }}
       # Clean up log record
@@ -753,7 +759,7 @@ processors:
   {{- include "splunk-otel-collector.k8sAttributesSplunkPlatformMetrics" . | nindent 2 }}
     filter:
       node_from_env_var: K8S_NODE_NAME
-  {{- if .Values.splunkPlatform.sourcetype }}
+  {{- if or .Values.splunkPlatform.metricsSourcetype .Values.splunkPlatform.sourcetype }}
   {{- include "splunk-otel-collector.resourceMetricsProcessor" . | nindent 2 }}
   {{- end }}
   {{- end }}
@@ -911,11 +917,11 @@ exporters:
   {{- if (eq (include "splunk-otel-collector.o11yTracesEnabled" .) "true") }}
   {{- include "splunk-otel-collector.otlpHttpExporter" . | nindent 2 }}
   {{- end }}
-  {{- if (eq (include "splunk-otel-collector.o11yLogsOrProfilingEnabled" .) "true") }}
+  {{- if (eq (include "splunk-otel-collector.o11yProfilingEnabled" .) "true") }}
   splunk_hec/o11y:
     endpoint: {{ include "splunk-otel-collector.o11yIngestUrl" . }}/v1/log
     token: "${SPLUNK_OBSERVABILITY_ACCESS_TOKEN}"
-    log_data_enabled: {{ .Values.splunkObservability.logsEnabled }}
+    log_data_enabled: false
     profiling_data_enabled: {{ .Values.splunkObservability.profilingEnabled }}
     # Temporary disable compression until 0.68.0 to workaround a compression bug
     disable_compression: true
@@ -1039,7 +1045,7 @@ service:
         {{- if .Values.gateway.enabled }}
         - otlp
         {{- else }}
-        {{- if (eq (include "splunk-otel-collector.o11yLogsOrProfilingEnabled" .) "true") }}
+        {{- if (eq (include "splunk-otel-collector.o11yProfilingEnabled" .) "true") }}
         - splunk_hec/o11y
         {{- end }}
         {{- if (eq (include "splunk-otel-collector.platformLogsEnabled" .) "true") }}
@@ -1078,9 +1084,6 @@ service:
         {{- else }}
         {{- if eq (include "splunk-otel-collector.platformLogsEnabled" .) "true" }}
         - splunk_hec/platform_logs
-        {{- end }}
-        {{- if eq (include "splunk-otel-collector.o11yLogsEnabled" .) "true" }}
-        - splunk_hec/o11y
         {{- end }}
         {{- end }}
         {{- end }}
@@ -1153,7 +1156,7 @@ service:
         {{- end }}
         {{- if (eq (include "splunk-otel-collector.platformMetricsEnabled" $) "true") }}
         - k8sattributes/metrics
-        {{- if .Values.splunkPlatform.sourcetype }}
+        {{- if or .Values.splunkPlatform.metricsSourcetype .Values.splunkPlatform.sourcetype }}
         - resource/metrics
         {{- end }}
         {{- end }}
@@ -1183,7 +1186,7 @@ service:
         - resource/add_mode
         {{- if (eq (include "splunk-otel-collector.platformMetricsEnabled" $) "true") }}
         - k8sattributes/metrics
-        {{- if .Values.splunkPlatform.sourcetype }}
+        {{- if or .Values.splunkPlatform.metricsSourcetype .Values.splunkPlatform.sourcetype }}
         - resource/metrics
         {{- end }}
         {{- end }}

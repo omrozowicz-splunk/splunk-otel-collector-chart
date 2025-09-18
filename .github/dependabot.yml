@@ -5,6 +5,16 @@ updates:
     schedule:
       interval: "daily"
   - package-ecosystem: "gomod"
-    directory: "/functional_tests"
-    schedule:
-      interval: "weekly"
+    directories:
+      - "**/*"
+    groups:
+      otelcol:
+        patterns:
+          - "go.opentelemetry.io/collector*"
+          - "github.com/open-telemetry/opentelemetry-collector-contrib/*"
+      otel:
+        patterns:
+          - "go.opentelemetry.io/otel*"
+      kubernetes-ecosystem:
+        patterns:
+          - "k8s.io/*"

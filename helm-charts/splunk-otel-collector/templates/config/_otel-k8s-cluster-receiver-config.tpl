@@ -23,6 +23,9 @@ receivers:
     auth_type: serviceAccount
     {{- if eq (include "splunk-otel-collector.o11yMetricsEnabled" $) "true" }}
     metadata_exporters: [signalfx]
+    resource_attributes:
+      k8s.container.status.last_terminated_reason:
+        enabled: true
     {{- end }}
     {{- if eq .Values.distribution "openshift" }}
     distribution: openshift
@@ -103,7 +106,7 @@ processors:
   {{- include "splunk-otel-collector.k8sAttributesSplunkPlatformMetrics" . | nindent 2 }}
     filter:
       node_from_env_var: K8S_NODE_NAME
-  {{- if .Values.splunkPlatform.sourcetype }}
+  {{- if or .Values.splunkPlatform.metricsSourcetype .Values.splunkPlatform.sourcetype }}
   {{- include "splunk-otel-collector.resourceMetricsProcessor" . | nindent 2 }}
   {{- end }}
   {{- end }}
@@ -250,16 +253,6 @@ exporters:
     {{- end}}
   {{- end }}
 
-  {{- if and (eq (include "splunk-otel-collector.o11yLogsEnabled" .) "true") (eq (include "splunk-otel-collector.objectsOrEventsEnabled" .) "true") }}
-  splunk_hec/o11y:
-    endpoint: {{ include "splunk-otel-collector.o11yIngestUrl" . }}/v1/log
-    token: "${SPLUNK_OBSERVABILITY_ACCESS_TOKEN}"
-    log_data_enabled: true
-    profiling_data_enabled: false
-    # Temporary disable compression until 0.68.0 to workaround a compression bug
-    disable_compression: true
-  {{- end }}
-
   {{- if (eq (include "splunk-otel-collector.platformMetricsEnabled" .) "true") }}
   {{- include "splunk-otel-collector.splunkPlatformMetricsExporter" . | nindent 2 }}
   {{- end }}
@@ -316,7 +309,7 @@ service:
         - resource
         {{- if (eq (include "splunk-otel-collector.platformMetricsEnabled" $) "true") }}
         - k8sattributes/metrics
-        {{- if .Values.splunkPlatform.sourcetype }}
+        {{- if or .Values.splunkPlatform.metricsSourcetype .Values.splunkPlatform.sourcetype }}
         - resource/metrics
         {{- end }}
         {{- end }}
@@ -341,7 +334,7 @@ service:
         - resource
         {{- if (eq (include "splunk-otel-collector.platformMetricsEnabled" $) "true") }}
         - k8sattributes/metrics
-        {{- if .Values.splunkPlatform.sourcetype }}
+        {{- if or .Values.splunkPlatform.metricsSourcetype .Values.splunkPlatform.sourcetype }}
         - resource/metrics
         {{- end }}
         {{- end }}
@@ -366,7 +359,7 @@ service:
         - resource/add_mode
         {{- if (eq (include "splunk-otel-collector.platformMetricsEnabled" $) "true") }}
         - k8sattributes/metrics
-        {{- if .Values.splunkPlatform.sourcetype }}
+        {{- if or .Values.splunkPlatform.metricsSourcetype .Values.splunkPlatform.sourcetype }}
         - resource/metrics
         {{- end }}
         {{- end }}
@@ -395,9 +388,6 @@ service:
         - transform/k8sevents
         - k8sattributes/clusterReceiver
       exporters:
-        {{- if (eq (include "splunk-otel-collector.o11yLogsEnabled" .) "true") }}
-        - splunk_hec/o11y
-        {{- end }}
         {{- if (eq (include "splunk-otel-collector.platformLogsEnabled" .) "true") }}
         - splunk_hec/platform_logs
         {{- end }}
@@ -418,9 +408,6 @@ service:
         {{- end }}
         - k8sattributes/clusterReceiver
       exporters:
-        {{- if (eq (include "splunk-otel-collector.o11yLogsEnabled" .) "true") }}
-        - splunk_hec/o11y
-        {{- end }}
         {{- if (eq (include "splunk-otel-collector.platformLogsEnabled" .) "true") }}
         - splunk_hec/platform_logs
         {{- end }}

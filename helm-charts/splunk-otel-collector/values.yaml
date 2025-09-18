@@ -56,6 +56,8 @@ splunkPlatform:
   # Optional. Default value for `sourcetype` field. For container logs, it will
   # be container name. For metrics and traces it will default to "httpevent".
   sourcetype: ""
+  # Optional. Default value for metrics `sourcetype` field. If not set it will follow the logic of the "sourcetype" field.
+  metricsSourcetype: ""
   # Maximum HTTP connections to use simultaneously when sending data.
   maxConnections: 200
   # Whether to disable gzip compression over HTTP. Defaults to true.
@@ -160,12 +162,6 @@ splunkObservability:
   # Options to disable or enable particular telemetry data types.
   metricsEnabled: true
   tracesEnabled: true
-
-  # Deprecated: [v0.132.0] this setting will be removed in 2 versions
-  # Logs cannot be sent directly to Splunk Observability anymore.
-  # Configure `splunkPlatform` to send logs to Splunk Platform and enable Log Observer Connect to view the logs in Splunk Observability.
-  # See https://help.splunk.com/en/splunk-observability-cloud/manage-data/view-splunk-platform-logs/accomplish-logs-pipeline-rules-in-splunk-platform
-  logsEnabled: false
 
   # Option to send Kubernetes events to Splunk Observability Infrastructure Monitoring in the old
   # format that doesn't provide any correlation with traces and logs.
@@ -521,8 +517,8 @@ clusterReceiver:
 
   # Kubernetes objects collection using OpenTelemetry Kubernetes Object Receiver
   # https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/receiver/k8sobjectsreceiver
-  # This option requires `splunkObservability.logsEnabled` or `splunkPlatform.logsEnabled`to be set
-  # to `true'. Otherwise, this option will not have any effect. The receiver currently is in "Beta"
+  # This option requires `splunkPlatform.logsEnabled`to be set to `true'.
+  # Otherwise, this option will not have any effect. The receiver currently is in "Beta"
   # state which means that objects format might change over time. Once the receiver is "Stable", it'll
   # be enabled by default.
 
@@ -628,6 +624,8 @@ logsCollection:
     # By the time of reconstructing a multiline log the following information is available to
     # identify source of the logs: namespace, pod and container names. At least one source
     # identifier has to be specified in for each multiline config.
+    # At some cases it may turn out that default number of lines to combine (1000) is not enough
+    # for some multiline logs. In that case maxNumOfLinesToCombine can be used to increase that limit.
     # The following example shows how to setup multiline log processing for logs having subsequent
     # log lines written with an offset. Let's say a k8s deployment called "buttercup-app" is
     # scheduled to run in "default" namespace with a java container called "server", and the
@@ -651,6 +649,7 @@ logsCollection:
     #       value: server
     #     firstEntryRegex: ^[^\s].*
     #     combineWith: ""
+    #     maxNumOfLinesToCombine: 1000
     multilineConfigs: []
     # Set useSplunkIncludeAnnotation flag to `true` to collect logs from pods with `splunk.com/include: true` annotation and ignore others.
     # All other logs will be ignored.
@@ -1313,16 +1312,22 @@ instrumentation:
       env:
         - name: OTEL_DOTNET_AUTO_PLUGINS
           value: Splunk.OpenTelemetry.AutoInstrumentation.Plugin,Splunk.OpenTelemetry.AutoInstrumentation
+        - name: OTEL_DOTNET_AUTO_CONTAINER_RESOURCE_DETECTOR_ENABLED
+          value: true
+        - name: OTEL_DOTNET_AUTO_RESOURCE_DETECTOR_ENABLED
+          value: false
     go:
       image: ghcr.io/open-telemetry/opentelemetry-go-instrumentation/autoinstrumentation-go:v0.21.0
       # env:
       #   - name: GO_ENV_VAR
       #     value: go_value
     java:
-      image: ghcr.io/signalfx/splunk-otel-java/splunk-otel-java:v2.18.0
-      # env:
-      #   - name: JAVA_ENV_VAR
-      #     value: java_value
+      image: ghcr.io/signalfx/splunk-otel-java/splunk-otel-java:v2.19.0
+      env:
+        - name: OTEL_RESOURCE_DISABLED_KEYS
+          value: process.executable.path,process.command_args
+        - name: OTEL_JAVA_ENABLED_RESOURCE_PROVIDERS
+          value: io.opentelemetry.instrumentation.resources.ContainerResourceProvider,io.opentelemetry.sdk.autoconfigure.EnvironmentResourceProvider,io.opentelemetry.instrumentation.resources.ProcessResourceProvider
     nginx:
       image: ghcr.io/open-telemetry/opentelemetry-operator/autoinstrumentation-apache-httpd:1.0.4
       # env:
@@ -1370,7 +1375,7 @@ certmanager:
 
 targetAllocator:
   enabled: false
-  image: ghcr.io/open-telemetry/opentelemetry-operator/target-allocator:v0.105.0
+  image: ghcr.io/open-telemetry/opentelemetry-operator/target-allocator:v0.132.0
   serviceAccount:
     # Specifies whether a ServiceAccount should be created
     create: true
@@ -1382,6 +1387,8 @@ targetAllocator:
     annotations: {}
   config:
     allocation_strategy: per-node
+    # Optional: Namespace where the collector pods are running. Defaults to the release namespace,
+    collector_namespace: ""
     collector_selector:
       matchlabels:
         component: otel-collector-agent

@@ -1,5 +1,5 @@
 {
-  "$schema": "http://json-schema.org/schema#",
+  "$schema": "https://json-schema.org/draft/2019-09/schema",
   "type": "object",
   "required": [
     "cloudProvider",
@@ -14,6 +14,10 @@
     },
     "global": {
       "type": "object"
+    },
+    "k8sVersion": {
+      "description": "Required for EKS Add-on compatibility. Not used by the chart.",
+      "type": "string"
     },
     "nameOverride": {
       "description": "Override name of the chart used in Kubernetes object names.",
@@ -59,6 +63,9 @@
           "type": "string"
         },
         "sourcetype": {
+          "type": "string"
+        },
+        "metricsSourcetype": {
           "type": "string"
         },
         "maxConnections": {
@@ -204,10 +211,6 @@
           "description": "Send Traces to Splunk Observability",
           "type": "boolean"
         },
-        "logsEnabled": {
-          "description": "Send Logs to Splunk Observability",
-          "type": "boolean"
-        },
         "profilingEnabled": {
           "description": "Whether profiling data is enabled for Splunk Observability",
           "type": "boolean"
@@ -228,13 +231,6 @@
         {
           "properties": {
             "tracesEnabled": {
-              "const": true
-            }
-          }
-        },
-        {
-          "properties": {
-            "logsEnabled": {
               "const": true
             }
           }
@@ -313,12 +309,6 @@
       "type": "object",
       "additionalProperties": false,
       "properties": {
-        "podLabels": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        },
         "fromLabels": {
           "type": "array",
           "items": {
@@ -1094,10 +1084,6 @@
                 "Always",
                 "Never"
               ]
-            },
-            "initContainer": {
-              "type": "object",
-              "deprecated": true
             }
           }
         },

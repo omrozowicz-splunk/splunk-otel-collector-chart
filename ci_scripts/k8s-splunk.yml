@@ -46,6 +46,12 @@ data:
               homePath: $SPLUNK_DB/test_metrics/db
               maxTotalDataSizeMB: 512000
               thawedPath: $SPLUNK_DB/test_metrics/thaweddb
+            test_metrics_annotation:
+              coldPath: $SPLUNK_DB/test_metrics_annotation/colddb
+              datatype: metric
+              homePath: $SPLUNK_DB/test_metrics_annotation/db
+              maxTotalDataSizeMB: 512000
+              thawedPath: $SPLUNK_DB/test_metrics_annotation/thaweddb
 ---
 apiVersion: v1
 kind: Pod
@@ -60,7 +66,7 @@ spec:
     runAsGroup: 0
   containers:
     - name: splunk
-      image: docker.io/splunk/splunk:9.3.0
+      image: docker.io/splunk/splunk:9.4.4
       ports:
         - name: web-interface
           containerPort: 8000
