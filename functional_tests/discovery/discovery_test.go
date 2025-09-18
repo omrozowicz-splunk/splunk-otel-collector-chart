@@ -190,6 +190,7 @@ func installRedisChart(t *testing.T, kubeConfig string) {
 	install.Namespace = internal.DefaultNamespace
 	install.ReleaseName = redisReleaseName
 	install.RepoURL = redisChartRepo
+	install.Version = "22.0.7"
 	install.Wait = true
 	install.Timeout = internal.HelmActionTimeout
 	hCli := cli.New()
