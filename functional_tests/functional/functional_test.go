@@ -6,6 +6,7 @@ package functional
 import (
 	"context"
 	"fmt"
+	"log"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -1224,6 +1225,7 @@ func selectMetricSet(expected pmetric.Metrics, metricSink *consumertest.MetricsS
 
 	for h := len(metricSink.AllMetrics()) - 1; h >= 0; h-- {
 		m := metricSink.AllMetrics()[h]
+		log.Println(m)
 		err := pmetrictest.CompareMetrics(expected, m,
 			pmetrictest.IgnoreTimestamp(),
 			pmetrictest.IgnoreStartTimestamp(),
