@@ -6,6 +6,7 @@ package functional
 import (
 	"context"
 	"fmt"
+	"log"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -1172,6 +1173,15 @@ func testAgentMetrics(t *testing.T) {
 	require.NoError(t, err)
 
 	selectedInternalMetrics := selectMetricSet(expectedInternalMetrics, agentMetricsConsumer, metricNames)
+
+	require.Eventually(t, func() bool {
+		result := selectMetricSet(expectedInternalMetrics, agentMetricsConsumer, metricNames)
+		if result != nil {
+			selectedInternalMetrics = result
+			return true
+		}
+		return false
+	}, 30*time.Second, 2*time.Second, "Failed to find matching metrics set")
 	require.NotNil(t, selectedInternalMetrics)
 	internal.MaybeUpdateExpectedMetricsResults(t, expectedInternalMetricsFile, selectedInternalMetrics)
 
@@ -1224,6 +1234,7 @@ func selectMetricSet(expected pmetric.Metrics, metricSink *consumertest.MetricsS
 
 	for h := len(metricSink.AllMetrics()) - 1; h >= 0; h-- {
 		m := metricSink.AllMetrics()[h]
+		log.Printf("metric: %+v", m.ResourceMetrics().At(0).ScopeMetrics().At(0).Metrics().At(0).Name())
 		err := pmetrictest.CompareMetrics(expected, m,
 			pmetrictest.IgnoreTimestamp(),
 			pmetrictest.IgnoreStartTimestamp(),
@@ -1272,6 +1283,17 @@ func selectMetricSet(expected pmetric.Metrics, metricSink *consumertest.MetricsS
 		)
 		if err == nil {
 			return &m
+		} else {
+			log.Printf("Did not match on try %d: %v", h, err)
+			for i := 0; i < m.ResourceMetrics().Len(); i++ {
+				rm := m.ResourceMetrics().At(i)
+				for j := 0; j < rm.ScopeMetrics().Len(); j++ {
+					sm := rm.ScopeMetrics().At(j)
+					for k := 0; k < sm.Metrics().Len(); k++ {
+						log.Printf("Metric: %+v", sm.Metrics().At(k).Name())
+					}
+				}
+			}
 		}
 	}
 	return nil
