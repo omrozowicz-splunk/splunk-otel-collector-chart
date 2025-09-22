@@ -1225,7 +1225,7 @@ func selectMetricSet(expected pmetric.Metrics, metricSink *consumertest.MetricsS
 
 	for h := len(metricSink.AllMetrics()) - 1; h >= 0; h-- {
 		m := metricSink.AllMetrics()[h]
-		log.Println(m.ResourceMetrics().At(0).Resource().Attributes().AsRaw())
+		log.Printf("%+v", m)
 		err := pmetrictest.CompareMetrics(expected, m,
 			pmetrictest.IgnoreTimestamp(),
 			pmetrictest.IgnoreStartTimestamp(),
