@@ -1276,7 +1276,15 @@ func selectMetricSet(expected pmetric.Metrics, metricSink *consumertest.MetricsS
 			return &m
 		} else {
 			log.Printf("Did not match on try %d: %v", h, err)
-			log.Printf("Metrics: %+v", m.ResourceMetrics().At(0).ScopeMetrics().At(0).Metrics().At(0).Name())
+			for i := 0; i < m.ResourceMetrics().Len(); i++ {
+				rm := m.ResourceMetrics().At(i)
+				for j := 0; j < rm.ScopeMetrics().Len(); j++ {
+					sm := rm.ScopeMetrics().At(j)
+					for k := 0; k < sm.Metrics().Len(); k++ {
+						log.Printf("Metric: %+v", sm.Metrics().At(k).Name())
+					}
+				}
+			}
 		}
 	}
 	return nil
