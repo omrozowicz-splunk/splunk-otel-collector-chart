@@ -1172,6 +1172,7 @@ func testAgentMetrics(t *testing.T) {
 	expectedInternalMetrics, err := golden.ReadMetrics(expectedInternalMetricsFile)
 	require.NoError(t, err)
 
+	time.Sleep(15 * time.Second) // wait for all metrics to be scraped
 	selectedInternalMetrics := selectMetricSet(expectedInternalMetrics, agentMetricsConsumer, metricNames)
 	require.NotNil(t, selectedInternalMetrics)
 	internal.MaybeUpdateExpectedMetricsResults(t, expectedInternalMetricsFile, selectedInternalMetrics)
