@@ -1225,7 +1225,7 @@ func selectMetricSet(expected pmetric.Metrics, metricSink *consumertest.MetricsS
 
 	for h := len(metricSink.AllMetrics()) - 1; h >= 0; h-- {
 		m := metricSink.AllMetrics()[h]
-		log.Printf("%+v", m.ResourceMetrics().At(0).ScopeMetrics().At(0).Metrics().At(0).Name())
+		log.Printf("metric: %+v", m.ResourceMetrics().At(0).ScopeMetrics().At(0).Metrics().At(0).Name())
 		err := pmetrictest.CompareMetrics(expected, m,
 			pmetrictest.IgnoreTimestamp(),
 			pmetrictest.IgnoreStartTimestamp(),
@@ -1274,6 +1274,9 @@ func selectMetricSet(expected pmetric.Metrics, metricSink *consumertest.MetricsS
 		)
 		if err == nil {
 			return &m
+		} else {
+			log.Printf("Did not match on try %d: %v", h, err)
+			log.Printf("Metrics: %+v", m.ResourceMetrics().At(0).ScopeMetrics().At(0).Metrics().At(0).Name())
 		}
 	}
 	return nil
