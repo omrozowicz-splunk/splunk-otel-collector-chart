@@ -112,6 +112,7 @@ func Test_K8SEvents(t *testing.T) {
 		expectedObjectsLogs, err := golden.ReadLogs(expectedObjectsLogsFile)
 		require.NoError(t, err, "failed to read expected objects logs from file")
 
+		t.Logf("log is: %v", k8sObjectsLogs)
 		internal.MaybeUpdateExpectedLogsResults(t, expectedObjectsLogsFile, &k8sObjectsLogs)
 		err = plogtest.CompareLogs(expectedObjectsLogs, k8sObjectsLogs,
 			plogtest.IgnoreTimestamp(),
