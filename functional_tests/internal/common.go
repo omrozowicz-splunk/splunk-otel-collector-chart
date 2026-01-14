@@ -6,6 +6,7 @@ package internal
 import (
 	"context"
 	"io"
+	"net"
 	"os"
 	"runtime"
 	"strings"
@@ -51,12 +52,30 @@ func HostEndpoint(t *testing.T) string {
 	defer cancel()
 	network, err := client.NetworkInspect(ctx, "kind", network.InspectOptions{})
 	require.NoError(t, err)
+
+	// --- START: Corrected Logic ---
+	// Loop through all IPAM configs to find the IPv4 gateway.
 	for _, ipam := range network.IPAM.Config {
-		if ipam.Gateway != "" {
-			return ipam.Gateway
+		if ipam.Gateway == "" {
+			continue // Skip configs with no gateway
+		}
+
+		// Parse the IP address to check its version.
+		ip := net.ParseIP(ipam.Gateway)
+		if ip == nil {
+			continue // Skip if the gateway is not a valid IP
+		}
+
+		// ip.To4() is the canonical way to check if an IP is IPv4.
+		// It returns nil if the IP is IPv6.
+		if ip.To4() != nil {
+			return ipam.Gateway // Found the IPv4 gateway, return it immediately.
 		}
 	}
-	require.Fail(t, "failed to find host endpoint")
+	// --- END: Corrected Logic ---
+
+	// If we get here, no IPv4 gateway was found. This should cause the test to fail.
+	require.Fail(t, "failed to find an IPv4 host endpoint for the kind network")
 	return ""
 }
 
