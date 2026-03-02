@@ -26,6 +26,12 @@ const (
 	leaseDuration = 60 * time.Second
 	renewDeadline = 40 * time.Second
 	retryPeriod   = 5 * time.Second
+
+	// acquisitionTimeout is the max time to wait for the lease. If the holder is a dead
+	// process, the lease expires after leaseDuration (60s). This gives one full expiry
+	// plus a short buffer. If you hit this timeout, either another test is still running
+	// or you can force-release: kubectl delete lease functional-test-lock -n default
+	acquisitionTimeout = leaseDuration + 30*time.Second
 )
 
 // AcquireLeaseForTest acquires (and holds) a cluster-wide lease for the duration of the
@@ -88,14 +94,21 @@ func AcquireLeaseForTest(t *testing.T, testKubeConfig string) {
 	ctx, cancel := context.WithCancel(t.Context())
 	go elector.Run(ctx)
 
-	// Wait until we become leader OR the test context ends
+	// Wait until we become leader, the test context ends, or we hit acquisition timeout
+	acquisitionDeadline := time.NewTimer(acquisitionTimeout)
+	defer acquisitionDeadline.Stop()
 	select {
 	case <-becameLeader:
 		t.Logf("Acquired the lease as %s", holderIdentity)
 	case <-t.Context().Done():
-		// If the test was canceled before we could acquire the lease
 		cancel()
 		t.Fatalf("Test was canceled before acquiring lease: %v", t.Context().Err())
+	case <-acquisitionDeadline.C:
+		cancel()
+		t.Fatalf("Could not acquire lease within %v. "+
+			"If no other test is running, a previous run may have left a stale lease. "+
+			"Force-release with: kubectl delete lease %s -n %s",
+			acquisitionTimeout, leaseName, leaseNamespace)
 	}
 
 	// We hold the lease. Register a cleanup to release it when the test is fully done.
